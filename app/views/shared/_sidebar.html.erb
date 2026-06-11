@@ -1,0 +1,61 @@
+<nav class="flex h-full flex-col bg-gray-900 px-4 py-6">
+  <%# App name / logo %>
+  <div class="flex items-center gap-x-3 px-3 mb-8">
+    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500">
+      <span class="text-sm font-bold text-white">M</span>
+    </div>
+    <span class="text-base font-semibold text-white">Macron X</span>
+  </div>
+
+  <%# Primary nav items %>
+  <div class="mb-2 px-3">
+    <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Main</p>
+  </div>
+  <ul class="space-y-1">
+    <% navigation_items.each do |item| %>
+      <% resolved_path = send(item[:path]) %>
+      <li>
+        <%= link_to resolved_path, class: nav_link_classes(resolved_path) do %>
+          <%= icon(item[:icon], class: nav_icon_classes(resolved_path)) %>
+          <span><%= item[:label] %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+
+  <%# Spacer %>
+  <div class="mt-auto pt-6">
+    <%# Settings group %>
+    <div class="mb-2 px-3">
+      <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Settings</p>
+    </div>
+    <ul class="space-y-1 mb-6">
+      <% navigation_settings_items.each do |item| %>
+        <% resolved_path = send(item[:path]) %>
+        <li>
+          <%= link_to resolved_path, class: nav_link_classes(resolved_path) do %>
+            <%= icon(item[:icon], class: nav_icon_classes(resolved_path)) %>
+            <span><%= item[:label] %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+
+    <%# User + sign out %>
+    <div class="border-t border-gray-800 pt-4">
+      <div class="flex items-center gap-x-3 px-3 py-2">
+        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-700 text-sm font-medium text-white">
+          <%= current_user.email.first.upcase %>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm font-medium text-white"><%= current_user.email %></p>
+        </div>
+        <%= button_to destroy_user_session_path, method: :delete,
+              class: "shrink-0 rounded-md p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-150 cursor-pointer",
+              title: "Sign out" do %>
+          <%= icon("arrow-right-start-on-rectangle", class: "w-4 h-4") %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>

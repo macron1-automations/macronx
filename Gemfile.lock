@@ -456,6 +456,7 @@ DEPENDENCIES
   factory_bot_rails
   image_processing (~> 1.2)
   importmap-rails
+  inline_svg
   jbuilder
   kamal
   pg (~> 1.1)

@@ -1,0 +1,14 @@
+<% flash.each do |type, message| %>
+  <% next if message.blank? %>
+  <% classes = case type.to_sym
+               when :notice  then "text-green-800 bg-green-50 border-green-200"
+               when :alert   then "text-red-800 bg-red-50 border-red-200"
+               when :warning then "text-yellow-800 bg-yellow-50 border-yellow-200"
+               else               "text-blue-800 bg-blue-50 border-blue-200"
+               end %>
+  <div class="mb-4 rounded-lg border px-4 py-3 text-sm <%= classes %>"
+       data-controller="flash"
+       data-action="animationend->flash#remove">
+    <%= message %>
+  </div>
+<% end %>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-full bg-white">
   <head>
     <title><%= content_for(:title) || "Macron X" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -11,21 +11,28 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
-      <%= yield %>
-    </main>
+  <body class="h-full">
+    <div class="flex h-full">
+      <%# Fixed-width sidebar %>
+      <div class="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
+        <%= render "shared/sidebar" %>
+      </div>
+
+      <%# Main content area, offset by sidebar width on large screens %>
+      <div class="flex flex-1 flex-col lg:pl-64">
+        <main class="flex-1 px-6 py-8 overflow-y-auto">
+          <%= render "shared/flash_messages" %>
+          <%= yield %>
+        </main>
+      </div>
+    </div>
   </body>
 </html>
