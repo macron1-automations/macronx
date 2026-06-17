@@ -6,6 +6,12 @@ Rails.application.routes.draw do
   end
 
   resources :inboxes do
+    collection do
+      get :bulk_process_modal
+      patch :bulk_process
+      patch :bulk_archive
+      delete :bulk_destroy
+    end
     member do
       get  :process, action: :process_modal
       patch :process, action: :mark_processed

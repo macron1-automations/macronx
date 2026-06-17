@@ -1,26 +1,115 @@
-<div class="mb-6 flex items-start justify-between">
-  <div>
-    <h1 class="text-2xl font-semibold text-gray-900">Inbox</h1>
-    <p class="mt-1 text-sm text-gray-500">Manage and process your incoming items</p>
+<%
+  current_sort      = params[:sort]
+  current_direction = params[:direction]
+  current_filter_p  = params[:filter] || 'unprocessed'
+  current_source    = params[:source]
+  current_view      = params[:view]
+  current_query     = params[:query]
+
+  sort_options = [
+    { label: 'Newest first',  sort: 'created_at', direction: 'desc' },
+    { label: 'Oldest first',  sort: 'created_at', direction: 'asc'  },
+    { label: 'Name A → Z',    sort: 'name',        direction: 'asc'  },
+    { label: 'Name Z → A',    sort: 'name',        direction: 'desc' },
+    { label: 'Source A → Z',  sort: 'source',      direction: 'asc'  },
+    { label: 'Source Z → A',  sort: 'source',      direction: 'desc' },
+  ]
+
+  active_sort = sort_options.find { |o| o[:sort] == current_sort && o[:direction] == current_direction }
+  filters_active = current_source.present?
+%>
+
+<%# Outer wrapper: disclosure controller scoped to the whole header + filter panel %>
+<div class="mb-6" data-controller="disclosure" data-action="click@window->disclosure#closeOnOutsideClick">
+  <div class="flex items-start justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Inbox</h1>
+      <p class="mt-1 text-sm text-gray-500">Manage and process your incoming items</p>
+    </div>
+    <div class="flex items-center gap-x-2">
+
+      <%# Filters toggle button %>
+      <button type="button"
+              data-action="click->disclosure#toggle"
+              class="inline-flex items-center gap-x-1.5 rounded-md border <%= filters_active ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-gray-300 bg-white text-gray-700' %> px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 transition-colors duration-150">
+        <svg class="-ml-0.5 h-4 w-4 <%= filters_active ? 'text-indigo-500' : 'text-gray-400' %>" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 8 18.25v-5.757a2.25 2.25 0 0 0-.659-1.591L2.659 6.22A2.25 2.25 0 0 1 2 4.629V2.34a.75.75 0 0 1 .628-.74Z" clip-rule="evenodd" />
+        </svg>
+        Filters<% if filters_active %> <span class="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-indigo-500 text-xs font-bold text-white">1</span><% end %>
+      </button>
+
+      <%# Sort dropdown — nested disclosure controller %>
+      <div class="relative" data-controller="disclosure" data-action="click@window->disclosure#closeOnOutsideClick">
+        <button type="button"
+                data-action="click->disclosure#toggle"
+                class="inline-flex items-center gap-x-1.5 rounded-md border <%= active_sort && !(current_sort == 'created_at' && current_direction == 'desc') ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-gray-300 bg-white text-gray-700' %> px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 transition-colors duration-150">
+          <svg class="-ml-0.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M2 3.75A.75.75 0 0 1 2.75 3h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 3.75Zm0 4.167a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Zm0 4.166a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
+          </svg>
+          Sort<% if active_sort && !(current_sort == 'created_at' && current_direction == 'desc') %>: <%= active_sort[:label] %><% end %>
+        </button>
+
+        <div data-disclosure-target="panel"
+             class="hidden absolute right-0 top-full z-20 mt-1 w-48 origin-top-right rounded-md border border-gray-200 bg-white shadow-lg">
+          <div class="py-1">
+            <% sort_options.each do |opt| %>
+              <%
+                is_active = current_sort == opt[:sort] && current_direction == opt[:direction]
+                link_params = { filter: current_filter_p, sort: opt[:sort], direction: opt[:direction], source: current_source, query: current_query, view: current_view }
+              %>
+              <%= link_to inboxes_path(link_params),
+                    class: "flex items-center justify-between px-4 py-2 text-sm #{is_active ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700 hover:bg-gray-50'} transition-colors duration-100" do %>
+                <%= opt[:label] %>
+                <% if is_active %>
+                  <svg class="h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                  </svg>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%= link_to new_inbox_path, class: "inline-flex items-center gap-x-1.5 rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors duration-150" do %>
+        <svg class="-ml-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+        </svg>
+        New Item
+      <% end %>
+    </div>
   </div>
-  <div class="flex items-center gap-x-2">
-    <button type="button" class="inline-flex items-center gap-x-1.5 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150">
-      <svg class="-ml-0.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 8 18.25v-5.757a2.25 2.25 0 0 0-.659-1.591L2.659 6.22A2.25 2.25 0 0 1 2 4.629V2.34a.75.75 0 0 1 .628-.74Z" clip-rule="evenodd" />
-      </svg>
-      Filters
-    </button>
-    <button type="button" class="inline-flex items-center gap-x-1.5 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150">
-      <svg class="-ml-0.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M2 3.75A.75.75 0 0 1 2.75 3h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 3.75Zm0 4.167a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Zm0 4.166a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
-      </svg>
-      Sort
-    </button>
-    <%= link_to new_inbox_path, class: "inline-flex items-center gap-x-1.5 rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors duration-150" do %>
-      <svg class="-ml-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-      </svg>
-      New Item
+
+  <%# Filter panel (toggled by the outer disclosure controller) %>
+  <div data-disclosure-target="panel"
+       class="hidden mt-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+    <%= form_with url: inboxes_path, method: :get, local: true, class: "flex flex-wrap items-end gap-x-4 gap-y-3" do |f| %>
+      <input type="hidden" name="filter" value="<%= current_filter_p %>">
+      <% if current_sort.present? %>
+        <input type="hidden" name="sort" value="<%= current_sort %>">
+        <input type="hidden" name="direction" value="<%= current_direction %>">
+      <% end %>
+      <% if current_view.present? %>
+        <input type="hidden" name="view" value="<%= current_view %>">
+      <% end %>
+      <% if current_query.present? %>
+        <input type="hidden" name="query" value="<%= current_query %>">
+      <% end %>
+
+      <div>
+        <label for="filter_source" class="block text-xs font-medium text-gray-600 mb-1">Source</label>
+        <input type="text" id="filter_source" name="source" value="<%= current_source %>"
+               placeholder="e.g. delta, api…"
+               class="block w-48 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+      </div>
+
+      <div class="flex items-center gap-x-2">
+        <%= f.submit 'Apply', class: "rounded-md bg-gray-900 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors duration-150 cursor-pointer" %>
+        <% if filters_active %>
+          <%= link_to 'Clear', inboxes_path(filter: current_filter_p, sort: current_sort, direction: current_direction, query: current_query, view: current_view),
+                class: "rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
+        <% end %>
+      </div>
     <% end %>
   </div>
 </div>

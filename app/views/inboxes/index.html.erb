@@ -1,80 +1,148 @@
 <%= render 'header' %>
 <%= render 'filter_tabs', counts: @counts, current_filter: params[:filter] || 'unprocessed' %>
-<%= render 'bulk_actions', filter: params[:filter] || 'unprocessed', count: @inboxes.size %>
 
-<div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm" data-controller="bulk-actions">
-  <% if @inboxes.any? %>
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th scope="col" class="w-10 px-4 py-3"></th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Name</th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Source</th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Summary</th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Created</th>
-          <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100 bg-white">
+<div data-controller="bulk-actions"
+     data-bulk-actions-process-modal-url-value="<%= bulk_process_modal_inboxes_path %>"
+     data-bulk-actions-archive-url-value="<%= bulk_archive_inboxes_path %>"
+     data-bulk-actions-destroy-url-value="<%= bulk_destroy_inboxes_path %>">
+  <%= render 'bulk_actions', count: @inboxes.size %>
+
+  <% if params[:view] == 'grid' %>
+    <%# Grid view %>
+    <% if @inboxes.any? %>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <% @inboxes.each do |inbox| %>
-          <tr class="hover:bg-gray-50 transition-colors duration-100">
-            <td class="px-4 py-4">
+          <div class="relative rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow duration-150">
+            <div class="absolute top-3 left-3">
               <input type="checkbox" value="<%= inbox.id %>"
                      class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                      data-bulk-actions-target="checkbox"
                      data-action="change->bulk-actions#updateActions">
-            </td>
-            <td class="px-6 py-4 text-sm font-medium text-gray-900">
-              <%= link_to inbox.name.presence || '(untitled)', inbox, class: "hover:text-indigo-600 transition-colors duration-150" %>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500">
-              <% if inbox.source.present? %>
-                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700"><%= inbox.source %></span>
-              <% else %>
-                <span class="text-gray-400">—</span>
-              <% end %>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate"><%= inbox.summary.presence || '—' %></td>
-            <td class="px-6 py-4 text-sm">
-              <% if inbox.archived? %>
-                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">Archived</span>
-              <% elsif inbox.processed? %>
-                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">Processed</span>
-              <% else %>
-                <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-700">Unprocessed</span>
-              <% end %>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap"><%= inbox.created_at.strftime('%b %d, %Y') %></td>
-            <td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
-              <div class="flex items-center justify-end gap-x-3">
-                <%= link_to 'View', inbox, class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
-                <% unless inbox.processed? || inbox.archived? %>
-                  <%= link_to 'Process', process_inbox_path(inbox),
-                        data: { turbo_frame: 'modal' },
-                        class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
+            </div>
+            <div class="pl-7">
+              <div class="flex items-start justify-between gap-x-2 mb-2">
+                <%= link_to inbox.name.presence || '(untitled)', inbox,
+                      class: "text-sm font-medium text-gray-900 hover:text-indigo-600 transition-colors duration-150 leading-snug" %>
+                <% if inbox.archived? %>
+                  <span class="shrink-0 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">Archived</span>
+                <% elsif inbox.processed? %>
+                  <span class="shrink-0 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Processed</span>
+                <% else %>
+                  <span class="shrink-0 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">Unprocessed</span>
                 <% end %>
-                <% unless inbox.archived? %>
-                  <%= button_to 'Archive', archive_inbox_path(inbox), method: :patch,
-                        class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
-                <% end %>
-                <%= link_to 'Edit', edit_inbox_path(inbox), class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" %>
-                <%= button_to 'Delete', inbox, method: :delete,
-                      data: { turbo_confirm: "Delete \"#{inbox.name}\"? This cannot be undone." },
-                      class: "text-red-600 hover:text-red-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
               </div>
-            </td>
-          </tr>
+              <% if inbox.source.present? %>
+                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 mb-2"><%= inbox.source %></span>
+              <% end %>
+              <p class="text-xs text-gray-500 line-clamp-2 mb-3"><%= inbox.summary.presence || 'No summary' %></p>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-400"><%= inbox.created_at.strftime('%b %d, %Y') %></span>
+                <div class="flex items-center gap-x-2 text-xs font-medium">
+                  <%= link_to 'View', inbox, class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
+                  <% unless inbox.processed? || inbox.archived? %>
+                    <%= link_to 'Process', process_inbox_path(inbox),
+                          data: { turbo_frame: 'modal' },
+                          class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
+                  <% end %>
+                  <% unless inbox.archived? %>
+                    <%= button_to 'Archive', archive_inbox_path(inbox), method: :patch,
+                          class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                  <% end %>
+                  <%= button_to 'Delete', inbox, method: :delete,
+                        data: { turbo_confirm: "Delete \"#{inbox.name}\"? This cannot be undone." },
+                        class: "text-red-600 hover:text-red-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                </div>
+              </div>
+            </div>
+          </div>
         <% end %>
-      </tbody>
-    </table>
+      </div>
+    <% else %>
+      <div class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-16 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.1 13.177a2.25 2.25 0 0 0-.1.661Z" />
+        </svg>
+        <h3 class="mt-4 text-sm font-semibold text-gray-900">No items</h3>
+        <p class="mt-1 text-sm text-gray-500">No inbox items match the current filter.</p>
+      </div>
+    <% end %>
   <% else %>
-    <div class="flex flex-col items-center justify-center py-16 text-center">
-      <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.1 13.177a2.25 2.25 0 0 0-.1.661Z" />
-      </svg>
-      <h3 class="mt-4 text-sm font-semibold text-gray-900">No items</h3>
-      <p class="mt-1 text-sm text-gray-500">No inbox items match the current filter.</p>
+    <%# List view (default) %>
+    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+      <% if @inboxes.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="w-10 px-4 py-3"></th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Name</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Source</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Summary</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Created</th>
+              <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 bg-white">
+            <% @inboxes.each do |inbox| %>
+              <tr class="hover:bg-gray-50 transition-colors duration-100">
+                <td class="px-4 py-4">
+                  <input type="checkbox" value="<%= inbox.id %>"
+                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                         data-bulk-actions-target="checkbox"
+                         data-action="change->bulk-actions#updateActions">
+                </td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                  <%= link_to inbox.name.presence || '(untitled)', inbox, class: "hover:text-indigo-600 transition-colors duration-150" %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  <% if inbox.source.present? %>
+                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700"><%= inbox.source %></span>
+                  <% else %>
+                    <span class="text-gray-400">—</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate"><%= inbox.summary.presence || '—' %></td>
+                <td class="px-6 py-4 text-sm">
+                  <% if inbox.archived? %>
+                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">Archived</span>
+                  <% elsif inbox.processed? %>
+                    <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">Processed</span>
+                  <% else %>
+                    <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-700">Unprocessed</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap"><%= inbox.created_at.strftime('%b %d, %Y') %></td>
+                <td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
+                  <div class="flex items-center justify-end gap-x-3">
+                    <%= link_to 'View', inbox, class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
+                    <% unless inbox.processed? || inbox.archived? %>
+                      <%= link_to 'Process', process_inbox_path(inbox),
+                            data: { turbo_frame: 'modal' },
+                            class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
+                    <% end %>
+                    <% unless inbox.archived? %>
+                      <%= button_to 'Archive', archive_inbox_path(inbox), method: :patch,
+                            class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                    <% end %>
+                    <%= link_to 'Edit', edit_inbox_path(inbox), class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" %>
+                    <%= button_to 'Delete', inbox, method: :delete,
+                          data: { turbo_confirm: "Delete \"#{inbox.name}\"? This cannot be undone." },
+                          class: "text-red-600 hover:text-red-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="flex flex-col items-center justify-center py-16 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.1 13.177a2.25 2.25 0 0 0-.1.661Z" />
+          </svg>
+          <h3 class="mt-4 text-sm font-semibold text-gray-900">No items</h3>
+          <p class="mt-1 text-sm text-gray-500">No inbox items match the current filter.</p>
+        </div>
+      <% end %>
     </div>
   <% end %>
 </div>
