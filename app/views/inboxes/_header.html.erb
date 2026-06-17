@@ -71,12 +71,26 @@
         </div>
       </div>
 
-      <%= link_to new_inbox_path, class: "inline-flex items-center gap-x-1.5 rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors duration-150" do %>
+      <%= link_to new_inbox_path,
+            title: "New Item (n)",
+            data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "n" },
+            class: "inline-flex items-center gap-x-1.5 rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors duration-150" do %>
         <svg class="-ml-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
           <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
         </svg>
         New Item
+        <kbd class="ml-1 hidden rounded border border-white/20 bg-white/10 px-1 py-0.5 font-mono text-xs font-normal text-white/70 sm:inline">n</kbd>
       <% end %>
+
+      <%# Keyboard shortcuts help toggle %>
+      <button type="button"
+              title="Keyboard shortcuts (?)"
+              data-action="click->keyboard-shortcuts#toggleHelp"
+              class="inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm text-gray-500 shadow-sm hover:bg-gray-50 hover:text-gray-700 transition-colors duration-150">
+        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+        </svg>
+      </button>
     </div>
   </div>
 

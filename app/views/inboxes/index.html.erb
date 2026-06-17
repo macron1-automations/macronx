@@ -1,5 +1,43 @@
+<div data-controller="keyboard-shortcuts">
+
 <%= render 'header' %>
 <%= render 'filter_tabs', counts: @counts, current_filter: params[:filter] || 'unprocessed' %>
+
+<%# Keyboard shortcuts help overlay — clicking the backdrop closes it %>
+<div data-keyboard-shortcuts-target="help"
+     data-action="click->keyboard-shortcuts#closeHelp"
+     aria-hidden="true"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="w-full max-w-sm rounded-xl border border-gray-200 bg-white shadow-2xl">
+    <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+      <h2 class="text-sm font-semibold text-gray-900">Keyboard Shortcuts</h2>
+      <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">?</kbd>
+    </div>
+    <ul class="divide-y divide-gray-100 px-5 py-2">
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">New Item</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">n</kbd>
+      </li>
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">Process selected</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">p</kbd>
+      </li>
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">Archive selected</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">a</kbd>
+      </li>
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">Delete selected</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">d</kbd>
+      </li>
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">Show / hide this help</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">?</kbd>
+      </li>
+    </ul>
+    <p class="px-5 pb-4 pt-1 text-xs text-gray-400">Shortcuts are disabled while typing in a form field.</p>
+  </div>
+</div>
 
 <div data-controller="bulk-actions"
      data-bulk-actions-process-modal-url-value="<%= bulk_process_modal_inboxes_path %>"
@@ -148,3 +186,5 @@
 </div>
 
 <turbo-frame id="modal"></turbo-frame>
+
+</div><%# end keyboard-shortcuts %>

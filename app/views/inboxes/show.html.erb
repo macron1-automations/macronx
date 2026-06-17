@@ -1,14 +1,23 @@
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8 flex items-center justify-between"
+     data-controller="keyboard-shortcuts">
   <div class="flex items-center gap-x-3">
-    <%= link_to inboxes_path, class: "text-sm text-gray-500 hover:text-gray-700 transition-colors duration-150" do %>
+    <%= link_to inboxes_path,
+          title: "Back to Inbox (u)",
+          data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "u" },
+          class: "text-sm text-gray-500 hover:text-gray-700 transition-colors duration-150" do %>
       &larr; Inbox
     <% end %>
     <span class="text-gray-300">/</span>
     <h1 class="text-2xl font-semibold text-gray-900"><%= @inbox.name.presence || '(untitled)' %></h1>
   </div>
   <div class="flex items-center gap-x-3">
-    <%= link_to 'Edit', edit_inbox_path(@inbox),
-          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-150" %>
+    <%= link_to edit_inbox_path(@inbox),
+          title: "Edit (e)",
+          data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "e" },
+          class: "inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-150" do %>
+      Edit
+      <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">e</kbd>
+    <% end %>
     <%= button_to 'Delete', @inbox, method: :delete,
           data: { turbo_confirm: "Delete \"#{@inbox.name}\"? This cannot be undone." },
           class: "inline-flex items-center rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-100 transition-colors duration-150 cursor-pointer" %>
