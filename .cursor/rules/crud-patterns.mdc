@@ -1,0 +1,98 @@
+---
+description: CRUD view and controller patterns established in the Inboxes feature. Follow these conventions when building any new resource CRUD pages.
+globs: app/views/**/*.html.erb,app/controllers/**/*.rb
+alwaysApply: false
+---
+
+# CRUD Patterns (Inboxes reference implementation)
+
+## Controller
+
+- `before_action :set_resource` for all member actions
+- On failure: `render :new/:edit, status: :unprocessable_entity`
+- On success: `redirect_to @resource, notice: "Resource was successfully created/updated."`
+- Private `set_resource` (finds by `params[:id]`) and `resource_params` (strong params)
+- For JSON columns: expose virtual `*_text` attributes; populate in `new`/`edit` with `JSON.pretty_generate`
+
+```ruby
+# ✅ GOOD
+def create
+  @inbox = Inbox.new(inbox_params)
+  if @inbox.save
+    redirect_to @inbox, notice: "Inbox was successfully created."
+  else
+    render :new, status: :unprocessable_entity
+  end
+end
+```
+
+## Index View
+
+- Root: `<div data-controller="keyboard-shortcuts">`
+- Default: list (table), optional grid via `?view=grid`
+- Render `'header'` and `'filter_tabs'` partials at the top
+- Bulk select: `data-bulk-actions-target="checkbox"`, `data-action="change->bulk-actions#updateActions"`
+- Empty state: centered SVG + `<h3>` + `<p>` inside `rounded-lg border-2 border-dashed border-gray-300 py-16 text-center`
+- End of template: `<turbo-frame id="modal"></turbo-frame>`
+
+## Show View
+
+- Root: `<div data-controller="keyboard-shortcuts">`
+- Header row: back link with `u` shortcut, resource title, Edit button (`e`), Delete `button_to` (red)
+- Details card: `<dl class="divide-y divide-gray-100">` with `<div class="grid grid-cols-3 gap-4 px-6 py-4">` rows
+- JSON display: `<pre class="overflow-auto rounded-md bg-gray-50 p-4 font-mono text-xs text-gray-800 leading-relaxed max-h-80"><%= JSON.pretty_generate(resource.field || {}) %></pre>`
+
+## New / Edit Views
+
+- Breadcrumb back-link at top (edit wraps in `data-controller="keyboard-shortcuts"`)
+- Render form inside: `<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">`
+
+## Form Partial
+
+Error banner (always first):
+```erb
+<% if resource.errors.any? %>
+  <div class="rounded-md bg-red-50 border border-red-200 p-4">
+    <!-- SVG icon + pluralize(count, 'error') heading + ul of full_messages -->
+  </div>
+<% end %>
+```
+
+Standard input class:
+```
+block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500
+```
+
+Submit button:
+```
+inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors duration-150 cursor-pointer
+```
+
+- Submit label: `resource.persisted? ? 'Update Resource' : 'Create Resource'`
+- Cancel link: `resource.persisted? ? resource : resources_path`
+
+## Tailwind Component Tokens
+
+| Component | Classes |
+|-----------|---------|
+| Card | `rounded-lg border border-gray-200 bg-white shadow-sm` |
+| Card section header | `border-b border-gray-100 bg-gray-50 px-6 py-3` |
+| Badge base | `inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium` |
+| Status: unprocessed | `bg-yellow-100 text-yellow-700` |
+| Status: processed / success | `bg-green-100 text-green-700` |
+| Status: archived / neutral | `bg-gray-100 text-gray-600` |
+| Secondary button | `inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50` |
+| Danger button | `inline-flex items-center rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 ring-1 ring-inset ring-red-200 hover:bg-red-100` |
+
+## Keyboard Shortcuts
+
+Root element: `data-controller="keyboard-shortcuts"`
+
+Annotate links with:
+```erb
+data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "e" }
+```
+
+Show hint: `<kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-400">e</kbd>`
+
+Standard shortcuts: `n` new, `e` edit, `u` back, `p` process, `a` archive, `d` delete, `?` help overlay.
