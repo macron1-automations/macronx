@@ -21,7 +21,7 @@
           'ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-gray-200 px-1.5 text-xs font-semibold text-gray-600'
         end
       %>
-      <%= link_to inboxes_path(filter: tab[:key], sort: params[:sort], direction: params[:direction], source: params[:source], view: params[:view]), class: tab_classes do %>
+      <%= link_to inboxes_path(filter: tab[:key], sort: params[:sort], direction: params[:direction], source: params[:source], view: params[:view], query: params[:query]), class: tab_classes do %>
         <%= tab[:label] %>
         <span class="<%= count_classes %>"><%= tab[:count] %></span>
       <% end %>
@@ -29,7 +29,10 @@
   </div>
 
   <div class="flex items-center gap-x-2">
-    <form method="get" action="<%= inboxes_path %>" class="relative" data-turbo-action="advance">
+    <form method="get" action="<%= inboxes_path %>" class="relative"
+          data-controller="search-form"
+          data-action="input->search-form#onInput"
+          data-turbo-action="replace">
       <input type="hidden" name="filter" value="<%= current_filter %>">
       <% if params[:sort].present? %>
         <input type="hidden" name="sort" value="<%= params[:sort] %>">
