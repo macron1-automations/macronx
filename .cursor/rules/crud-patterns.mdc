@@ -1,10 +1,50 @@
 ---
-description: CRUD view and controller patterns established in the Inboxes feature. Follow these conventions when building any new resource CRUD pages.
+description: Full-featured CRUD patterns from Inboxes — Turbo modals, keyboard shortcuts, bulk actions, filters. Use this when building new app sections (Tasks, Projects, etc.).
 globs: app/views/**/*.html.erb,app/controllers/**/*.rb
 alwaysApply: false
 ---
 
 # CRUD Patterns (Inboxes reference implementation)
+
+**Inboxes is the canonical template for every new main app section** (e.g. Tasks, Projects). When adding a new resource, replicate the full Inboxes experience — not the simpler Workflows-style CRUD. That means:
+
+- **Turbo Frames** for in-page modals (`<turbo-frame id="modal">` on index/show; modal views load into it)
+- **Keyboard shortcuts** on index, show, new, edit, bulk actions, and modals (`keyboard-shortcuts` Stimulus controller)
+- **Bulk selection + actions** (`bulk-actions` + `list-navigation` Stimulus controllers)
+- **Filter tabs, search, sort, list/grid toggle** (disclosure + search-form controllers)
+- **Consistent Tailwind tokens** (cards, badges, buttons — see table below)
+
+Copy `app/views/inboxes/` and `InboxesController` as your starting point, then rename and adapt domain-specific actions (Process/Tag → whatever the resource needs).
+
+## Building a new section (checklist)
+
+Use this when scaffolding Tasks, Projects, or any similar resource:
+
+| Layer | What to create | Notes |
+|-------|----------------|-------|
+| Routes | Standard REST + collection bulk routes + member modal routes | See Inboxes routes for `bulk_*`, `*_modal`, `mark_*` patterns |
+| Controller | `*Controller` mirroring `InboxesController` | Swap `@inbox`/`inbox_params` for your resource; keep Turbo/modal/bulk action structure |
+| Views | `index`, `show`, `new`, `edit`, `_form`, `_header`, `_filter_tabs`, `_bulk_actions` | One partial per concern; don't inline header/filter logic into index |
+| Modals | One view per modal action (single + bulk variants) | Each wraps content in `<turbo-frame id="modal">`; form uses `data: { turbo_frame: '_top' }` |
+| Stimulus | Reuse existing controllers — do not reimplement | `keyboard-shortcuts`, `bulk-actions`, `list-navigation`, `disclosure`, `search-form`, `modal` |
+| Shortcuts | Wire every actionable link/button | Add `data-keyboard-shortcuts-target="trigger"` + key; show `<kbd>` hints; include help overlay on index/show |
+
+**Always include (every new section):** keyboard shortcuts, Turbo modal frame, bulk select bar, filter/search/sort UI, list + grid views, empty states, flash-friendly redirects.
+
+**Adapt per resource:** filter tab names, bulk action buttons, show-page action buttons, modal forms, status badges.
+
+## Reusable Stimulus controllers
+
+These already exist in `app/javascript/controllers/` — wire them up, don't write new ones:
+
+| Controller | Used on | Purpose |
+|------------|---------|---------|
+| `keyboard-shortcuts` | index, show, new, edit | Global hotkeys + help overlay |
+| `bulk-actions` | index list wrapper | Select-all, bulk process/tag/archive/delete via modal URLs |
+| `list-navigation` | index list wrapper | `j`/`k` row focus, `x` toggle, `↵` open |
+| `disclosure` | `_header` | Filter panel + sort dropdown |
+| `search-form` | `_filter_tabs` | Debounced GET search with `data-turbo-action="replace"` |
+| `modal` | modal dialog panel | `Esc` cancel, `↵` submit |
 
 ## Controller
 
@@ -17,19 +57,21 @@ alwaysApply: false
 - Bulk actions: separate `bulk_*_modal` (GET, renders modal) and `bulk_*` (PATCH, redirects with notice) endpoints
 
 ```ruby
-# ✅ GOOD
+# ✅ GOOD — same structure for TasksController, ProjectsController, etc.
 def create
-  @inbox = Inbox.new(inbox_params)
-  if @inbox.save
-    redirect_to @inbox, notice: "Inbox was successfully created."
+  @task = Task.new(task_params)
+  if @task.save
+    redirect_to @task, notice: "Task was successfully created."
   else
-    @tags = Tag.order(:name)
+    @tags = Tag.order(:name)  # re-populate any ivars the form needs
     render :new, status: :unprocessable_entity
   end
 end
 ```
 
 ## Index View
+
+Required for every new section. Structure:
 
 - Root: `<div data-controller="keyboard-shortcuts">`
 - Inline help overlay: `data-keyboard-shortcuts-target="help"` with `data-action="click->keyboard-shortcuts#closeHelp"`, toggled via `?` button or `keyboard-shortcuts#toggleHelp`
@@ -65,10 +107,12 @@ end
 
 ## Show View
 
+Required for every new section. Structure:
+
 - Root: `<div data-controller="keyboard-shortcuts">` with inline help overlay
 - Header row (`mb-8 flex items-center justify-between`):
-  - Left: breadcrumb back link with `u` shortcut (`← Parent / Title`)
-  - Right: contextual action buttons (Process, Tag, Archive/Unarchive) + divider + Edit (`e`) + Delete (`d`, danger style) + `?` help button
+  - Left: breadcrumb back link with `u` shortcut (`← Section / Title`)
+  - Right: resource-specific action buttons (e.g. Inbox: Process, Tag, Archive) + divider + Edit (`e`) + Delete (`d`, danger style) + `?` help button
   - Modal actions: `data: { turbo_frame: 'modal', keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "…" }`
   - Destructive confirms: `form: { data: { turbo_confirm: "…" } }`
 - Details card: section header (`border-b border-gray-100 bg-gray-50 px-6 py-3`) + `<dl class="divide-y divide-gray-100">` with `<div class="grid grid-cols-3 gap-4 px-6 py-4">` rows (`dt` + `dd class="col-span-2"`)
@@ -122,6 +166,8 @@ inline-flex items-center gap-x-1.5 justify-center rounded-md bg-indigo-600 px-4 
 
 ## Modal Views (Turbo Frame)
 
+Use for any action that should open in-page without a full navigation (assign workflow, set status, pick assignee, etc.). Same pattern for single-item and bulk modals.
+
 - Wrapped in `<turbo-frame id="modal">`
 - Full-screen overlay: `fixed inset-0 z-50 flex items-center justify-center` + backdrop `bg-gray-500/75`
 - Dialog panel: `relative z-10 w-full max-w-md rounded-xl bg-white shadow-2xl` with `data-controller="modal"`
@@ -147,6 +193,8 @@ inline-flex items-center gap-x-1.5 justify-center rounded-md bg-indigo-600 px-4 
 
 ## Keyboard Shortcuts
 
+Required on every new section — index, show, new, edit, bulk bar, and modals.
+
 Root element: `data-controller="keyboard-shortcuts"`
 
 Annotate links/buttons with:
@@ -156,10 +204,10 @@ data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "e" }
 
 Show hint: `<kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-400">e</kbd>`
 
-Standard shortcuts:
-- Index: `n` new, `p` process selected, `t` tag selected, `a` archive/unarchive selected, `d` delete selected, `j`/`k` navigate, `x` toggle select, `↵` view focused, `?` help
-- Show: `e` edit, `p` process, `t` tag, `a` archive/unarchive, `d` delete, `u` back, `?` help
+Standard shortcuts (adapt labels in help overlay; keep keys consistent across sections):
+- Index: `n` new, `p`/`t`/`a`/`d` bulk actions, `j`/`k` navigate, `x` toggle select, `↵` view focused, `?` help
+- Show: `e` edit, resource-specific keys for modal actions, `a` archive/unarchive, `d` delete, `u` back, `?` help
 - Modals: `↵` submit, `Esc` cancel/close
 - Forms: `Enter` submit (after exiting field with Esc)
 
-Help overlay: `data-keyboard-shortcuts-target="help"`, sections grouped by context (list, navigation, item view, modals).
+Help overlay: `data-keyboard-shortcuts-target="help"`, sections grouped by context (list, navigation, item view, modals). Copy the overlay structure from `inboxes/index.html.erb` and customize the action names.
