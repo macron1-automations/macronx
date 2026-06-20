@@ -47,6 +47,16 @@
         </dd>
       </div>
       <div class="grid grid-cols-3 gap-4 px-6 py-4">
+        <dt class="text-sm font-medium text-gray-500">Tag</dt>
+        <dd class="col-span-2 text-sm text-gray-900">
+          <% if @inbox.tag %>
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium <%= @inbox.tag.badge_classes %>"><%= @inbox.tag.name %></span>
+          <% else %>
+            <span class="text-gray-400">—</span>
+          <% end %>
+        </dd>
+      </div>
+      <div class="grid grid-cols-3 gap-4 px-6 py-4">
         <dt class="text-sm font-medium text-gray-500">Summary</dt>
         <dd class="col-span-2 text-sm text-gray-900"><%= @inbox.summary.presence || '—' %></dd>
       </div>

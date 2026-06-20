@@ -76,9 +76,11 @@
 
 <div data-controller="bulk-actions"
      data-bulk-actions-process-modal-url-value="<%= bulk_process_modal_inboxes_path %>"
+     data-bulk-actions-tag-modal-url-value="<%= bulk_tag_modal_inboxes_path %>"
      data-bulk-actions-archive-url-value="<%= bulk_archive_inboxes_path %>"
+     data-bulk-actions-unarchive-url-value="<%= bulk_unarchive_inboxes_path %>"
      data-bulk-actions-destroy-url-value="<%= bulk_destroy_inboxes_path %>">
-  <%= render 'bulk_actions', count: @inboxes.size %>
+  <%= render 'bulk_actions', count: @inboxes.size, filter: params[:filter] %>
 
   <% if params[:view] == 'grid' %>
     <%# Grid view %>
@@ -104,9 +106,14 @@
                   <span class="shrink-0 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">Unprocessed</span>
                 <% end %>
               </div>
-              <% if inbox.source.present? %>
-                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 mb-2"><%= inbox.source %></span>
-              <% end %>
+              <div class="flex flex-wrap items-center gap-1 mb-2">
+                <% if inbox.source.present? %>
+                  <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700"><%= inbox.source %></span>
+                <% end %>
+                <% if inbox.tag %>
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium <%= inbox.tag.badge_classes %>"><%= inbox.tag.name %></span>
+                <% end %>
+              </div>
               <p class="text-xs text-gray-500 line-clamp-2 mb-3"><%= inbox.summary.presence || 'No summary' %></p>
               <div class="flex items-center justify-between">
                 <span class="text-xs text-gray-400"><%= inbox.created_at.strftime('%b %d, %Y') %></span>
@@ -117,10 +124,17 @@
                           data: { turbo_frame: 'modal' },
                           class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
                   <% end %>
-                  <% unless inbox.archived? %>
+                  <%= link_to 'Tag', tag_inbox_path(inbox),
+                        data: { turbo_frame: 'modal' },
+                        class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
+                  <% if inbox.archived? %>
+                    <%= button_to 'Unarchive', unarchive_inbox_path(inbox), method: :patch,
+                          class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                  <% else %>
                     <%= button_to 'Archive', archive_inbox_path(inbox), method: :patch,
                           class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
                   <% end %>
+                  <%= link_to 'Edit', edit_inbox_path(inbox), class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" %>
                   <%= button_to 'Delete', inbox, method: :delete,
                         data: { turbo_confirm: "Delete \"#{inbox.name}\"? This cannot be undone." },
                         class: "text-red-600 hover:text-red-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
@@ -151,6 +165,7 @@
               <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Source</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Summary</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Tag</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Created</th>
               <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
             </tr>
@@ -184,6 +199,13 @@
                     <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-700">Unprocessed</span>
                   <% end %>
                 </td>
+                <td class="px-6 py-4 text-sm">
+                  <% if inbox.tag %>
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium <%= inbox.tag.badge_classes %>"><%= inbox.tag.name %></span>
+                  <% else %>
+                    <span class="text-gray-400">—</span>
+                  <% end %>
+                </td>
                 <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap"><%= inbox.created_at.strftime('%b %d, %Y') %></td>
                 <td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                   <div class="flex items-center justify-end gap-x-3">
@@ -193,7 +215,13 @@
                             data: { turbo_frame: 'modal' },
                             class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
                     <% end %>
-                    <% unless inbox.archived? %>
+                    <%= link_to 'Tag', tag_inbox_path(inbox),
+                          data: { turbo_frame: 'modal' },
+                          class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
+                    <% if inbox.archived? %>
+                      <%= button_to 'Unarchive', unarchive_inbox_path(inbox), method: :patch,
+                            class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                    <% else %>
                       <%= button_to 'Archive', archive_inbox_path(inbox), method: :patch,
                             class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
                     <% end %>

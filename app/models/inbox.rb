@@ -1,5 +1,6 @@
 class Inbox < ApplicationRecord
   belongs_to :workflow, optional: true
+  belongs_to :tag, optional: true
 
   attr_accessor :payload_text, :metadata_text
 

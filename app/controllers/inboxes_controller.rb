@@ -1,5 +1,5 @@
 class InboxesController < ApplicationController
-  before_action :set_inbox, only: %i[show edit update destroy process_modal mark_processed archive]
+  before_action :set_inbox, only: %i[show edit update destroy process_modal mark_processed archive unarchive tag_modal mark_tagged]
 
   def index
     @counts = {
@@ -23,7 +23,7 @@ class InboxesController < ApplicationController
 
     sort_col = %w[name source created_at].include?(params[:sort]) ? params[:sort] : "created_at"
     direction = params[:direction] == "asc" ? :asc : :desc
-    @inboxes = @inboxes.order(sort_col => direction)
+    @inboxes = @inboxes.includes(:tag).order(sort_col => direction)
   end
 
   def bulk_process_modal
@@ -45,9 +45,26 @@ class InboxesController < ApplicationController
     redirect_to inboxes_path, notice: "#{params[:inbox_ids].to_a.size} item(s) archived."
   end
 
+  def bulk_unarchive
+    Inbox.where(id: params[:inbox_ids]).update_all(archived: false)
+    redirect_to inboxes_path(filter: "archived"), notice: "#{params[:inbox_ids].to_a.size} item(s) restored to inbox."
+  end
+
   def bulk_destroy
     Inbox.where(id: params[:inbox_ids]).destroy_all
     redirect_to inboxes_path, notice: "Items deleted."
+  end
+
+  def bulk_tag_modal
+    @inbox_ids = Array(params[:inbox_ids])
+    @tags = Tag.order(:name)
+    render :bulk_tag
+  end
+
+  def bulk_tag
+    tag_id = params.dig(:inbox, :tag_id).presence
+    Inbox.where(id: params[:inbox_ids]).update_all(tag_id: tag_id)
+    redirect_to inboxes_path, notice: "#{params[:inbox_ids].to_a.size} item(s) tagged."
   end
 
   def show
@@ -55,6 +72,7 @@ class InboxesController < ApplicationController
 
   def new
     @inbox = Inbox.new(payload: {}, metadata: {})
+    @tags = Tag.order(:name)
     populate_json_text_fields
   end
 
@@ -64,11 +82,13 @@ class InboxesController < ApplicationController
     if @inbox.save
       redirect_to @inbox, notice: "Inbox was successfully created."
     else
+      @tags = Tag.order(:name)
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
+    @tags = Tag.order(:name)
     populate_json_text_fields
   end
 
@@ -76,6 +96,7 @@ class InboxesController < ApplicationController
     if @inbox.update(inbox_params)
       redirect_to @inbox, notice: "Inbox was successfully updated."
     else
+      @tags = Tag.order(:name)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -104,6 +125,22 @@ class InboxesController < ApplicationController
     redirect_to inboxes_path, notice: "Inbox item archived."
   end
 
+  def unarchive
+    @inbox.update(archived: false)
+    redirect_to inboxes_path(filter: "archived"), notice: "\"#{@inbox.name}\" restored to inbox."
+  end
+
+  def tag_modal
+    @tags = Tag.order(:name)
+    render :tag
+  end
+
+  def mark_tagged
+    tag_id = params.dig(:inbox, :tag_id).presence
+    @inbox.update(tag_id: tag_id)
+    redirect_to inboxes_path, notice: "Tag updated."
+  end
+
   private
 
   def set_inbox
@@ -116,6 +153,6 @@ class InboxesController < ApplicationController
   end
 
   def inbox_params
-    params.require(:inbox).permit(:name, :source, :summary, :payload_text, :metadata_text)
+    params.require(:inbox).permit(:name, :source, :summary, :tag_id, :payload_text, :metadata_text)
   end
 end

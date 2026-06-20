@@ -1,0 +1,58 @@
+<turbo-frame id="modal">
+  <div class="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <%# Backdrop %>
+    <div class="fixed inset-0 bg-gray-500/75 transition-opacity"></div>
+
+    <%# Dialog panel %>
+    <div class="relative z-10 w-full max-w-md rounded-xl bg-white shadow-2xl"
+         data-controller="modal">
+      <div class="px-6 py-5 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h2 id="modal-title" class="text-lg font-semibold text-gray-900">Tag Items</h2>
+          <%= link_to inboxes_path, data: { turbo_frame: 'modal' },
+                class: "rounded-md text-gray-400 hover:text-gray-500 focus:outline-none" do %>
+            <span class="sr-only">Close</span>
+            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+            </svg>
+          <% end %>
+        </div>
+        <p class="mt-1 text-sm text-gray-500">
+          Apply a tag to
+          <span class="font-medium text-gray-700"><%= @inbox_ids.size %> selected item<%= @inbox_ids.size == 1 ? '' : 's' %></span>
+        </p>
+      </div>
+
+      <%= form_with url: bulk_tag_inboxes_path, method: :patch, data: { turbo_frame: '_top' }, class: "px-6 py-5 space-y-4" do |f| %>
+        <% @inbox_ids.each do |id| %>
+          <input type="hidden" name="inbox_ids[]" value="<%= id %>">
+        <% end %>
+
+        <div>
+          <label for="bulk_tag_id" class="block text-sm font-medium text-gray-700 mb-1">Tag</label>
+          <% if @tags.any? %>
+            <%= f.select :tag_id,
+                  options_from_collection_for_select(@tags, :id, :name),
+                  { include_blank: '— Remove tag —' },
+                  id: 'bulk_tag_id',
+                  name: 'inbox[tag_id]',
+                  class: "block w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-8 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+          <% else %>
+            <p class="rounded-md bg-yellow-50 border border-yellow-200 px-3 py-2 text-sm text-yellow-800">
+              No tags exist yet. Create tags via the Rails console or ask your admin.
+            </p>
+          <% end %>
+        </div>
+
+        <div class="flex items-center justify-end gap-x-3 pt-2 border-t border-gray-100">
+          <%= link_to 'Cancel', inboxes_path,
+                data: { turbo_frame: 'modal', modal_target: 'cancel' },
+                class: "rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
+          <%= f.submit "Apply to #{@inbox_ids.size} Item#{'s' if @inbox_ids.size != 1}",
+                data: { modal_target: 'submit' },
+                class: "rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors duration-150 cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</turbo-frame>

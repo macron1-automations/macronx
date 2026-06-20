@@ -64,6 +64,30 @@ RSpec.describe Inbox, type: :model do
     end
   end
 
+  describe 'tag association' do
+    it 'is valid without a tag (optional)' do
+      expect(build(:inbox, tag: nil)).to be_valid
+    end
+
+    it 'is valid when a tag is assigned' do
+      tag = create(:tag)
+      expect(build(:inbox, tag: tag)).to be_valid
+    end
+
+    it 'exposes the tag name via the association' do
+      tag = create(:tag, name: 'urgent')
+      inbox = create(:inbox, tag: tag)
+      expect(inbox.reload.tag.name).to eq('urgent')
+    end
+
+    it 'can have its tag cleared' do
+      tag = create(:tag)
+      inbox = create(:inbox, tag: tag)
+      inbox.update!(tag: nil)
+      expect(inbox.reload.tag).to be_nil
+    end
+  end
+
   describe 'persistence' do
     it 'saves and reloads jsonb fields correctly' do
       inbox = create(:inbox, payload: { 'key' => 'value' }, metadata: { 'env' => 'test' })
