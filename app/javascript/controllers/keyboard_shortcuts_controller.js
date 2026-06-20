@@ -36,27 +36,34 @@ export default class extends Controller {
   }
 
   handleKeydown(event) {
-    // Ignore when typing in text-entry fields or contenteditable,
-    // but allow shortcuts when a checkbox/radio/button has focus.
     const focused = event.target
-    if (focused.isContentEditable) return
-    if (focused.tagName === "TEXTAREA" || focused.tagName === "SELECT") return
-    if (focused.tagName === "INPUT") {
-      const textTypes = ["text", "email", "password", "search", "url", "tel",
-                         "number", "date", "time", "datetime-local", "month", "week"]
-      if (textTypes.includes(focused.type)) return
-    }
     // Ignore modifier combos (allow plain Shift only for ?)
     if (event.ctrlKey || event.metaKey || event.altKey) return
+
+    const textTypes = ["text", "email", "password", "search", "url", "tel",
+                       "number", "date", "time", "datetime-local", "month", "week"]
+    const inTextField = focused.isContentEditable ||
+      focused.tagName === "TEXTAREA" ||
+      (focused.tagName === "INPUT" && textTypes.includes(focused.type))
+
+    // Escape: blur any focused text/textarea so other shortcuts become available;
+    // or close the help overlay if nothing is focused in a field.
+    if (event.key === "Escape") {
+      if (inTextField) {
+        event.preventDefault()
+        focused.blur()
+      } else if (this.hasHelpTarget) {
+        this.hideHelp()
+      }
+      return
+    }
+
+    // All other shortcuts are disabled while typing in a text-entry field or select.
+    if (inTextField || focused.tagName === "SELECT") return
 
     if (event.key === "?") {
       event.preventDefault()
       this.toggleHelp()
-      return
-    }
-
-    if (event.key === "Escape" && this.hasHelpTarget) {
-      this.hideHelp()
       return
     }
 

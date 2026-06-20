@@ -1,6 +1,11 @@
+<div data-controller="keyboard-shortcuts">
 <div class="mb-8 flex items-center gap-x-3">
-  <%= link_to inboxes_path, class: "text-sm text-gray-500 hover:text-gray-700 transition-colors duration-150" do %>
+  <%= link_to inboxes_path,
+        title: "Back to Inbox (u)",
+        data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "u" },
+        class: "inline-flex items-center gap-x-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors duration-150" do %>
     &larr; Inbox
+    <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-400">u</kbd>
   <% end %>
   <span class="text-gray-300">/</span>
   <h1 class="text-2xl font-semibold text-gray-900">New Inbox Item</h1>
@@ -9,3 +14,4 @@
 <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
   <%= render 'form', inbox: @inbox %>
 </div>
+</div><%# end keyboard-shortcuts %>
