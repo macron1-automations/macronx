@@ -142,21 +142,6 @@
                 <span class="text-xs text-gray-400"><%= inbox.created_at.strftime('%b %d, %Y') %></span>
                 <div class="flex items-center gap-x-2 text-xs font-medium">
                   <%= link_to 'View', inbox, class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150", data: { list_navigation_view: true } %>
-                  <% unless inbox.processed? || inbox.archived? %>
-                    <%= link_to 'Process', process_inbox_path(inbox),
-                          data: { turbo_frame: 'modal' },
-                          class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
-                  <% end %>
-                  <%= link_to 'Tag', tag_inbox_path(inbox),
-                        data: { turbo_frame: 'modal' },
-                        class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
-                  <% if inbox.archived? %>
-                    <%= button_to 'Unarchive', unarchive_inbox_path(inbox), method: :patch,
-                          class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
-                  <% else %>
-                    <%= button_to 'Archive', archive_inbox_path(inbox), method: :patch,
-                          class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
-                  <% end %>
                   <%= link_to 'Edit', edit_inbox_path(inbox), class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" %>
                   <%= button_to 'Delete', inbox, method: :delete,
                         data: { turbo_confirm: "Delete \"#{inbox.name}\"? This cannot be undone." },
@@ -233,21 +218,6 @@
                 <td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                   <div class="flex items-center justify-end gap-x-3">
                     <%= link_to 'View', inbox, class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150", data: { list_navigation_view: true } %>
-                    <% unless inbox.processed? || inbox.archived? %>
-                      <%= link_to 'Process', process_inbox_path(inbox),
-                            data: { turbo_frame: 'modal' },
-                            class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
-                    <% end %>
-                    <%= link_to 'Tag', tag_inbox_path(inbox),
-                          data: { turbo_frame: 'modal' },
-                          class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
-                    <% if inbox.archived? %>
-                      <%= button_to 'Unarchive', unarchive_inbox_path(inbox), method: :patch,
-                            class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
-                    <% else %>
-                      <%= button_to 'Archive', archive_inbox_path(inbox), method: :patch,
-                            class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
-                    <% end %>
                     <%= link_to 'Edit', edit_inbox_path(inbox), class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" %>
                     <%= button_to 'Delete', inbox, method: :delete,
                           data: { turbo_confirm: "Delete \"#{inbox.name}\"? This cannot be undone." },

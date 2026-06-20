@@ -1,4 +1,54 @@
 <div data-controller="keyboard-shortcuts">
+
+<%# Help overlay %>
+<div data-keyboard-shortcuts-target="help"
+     data-action="click->keyboard-shortcuts#closeHelp"
+     aria-hidden="true"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="w-full max-w-sm rounded-xl border border-gray-200 bg-white shadow-2xl">
+    <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+      <h2 class="text-sm font-semibold text-gray-900">Keyboard Shortcuts</h2>
+      <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">?</kbd>
+    </div>
+
+    <div class="px-5 pt-3 pb-1">
+      <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Item view</p>
+    </div>
+    <ul class="divide-y divide-gray-100 px-5 pb-2">
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">Edit</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">e</kbd>
+      </li>
+      <% unless @inbox.processed? || @inbox.archived? %>
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">Process</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">p</kbd>
+      </li>
+      <% end %>
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">Tag</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">t</kbd>
+      </li>
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700"><%= @inbox.archived? ? 'Unarchive' : 'Archive' %></span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">a</kbd>
+      </li>
+      <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">Back to Inbox</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">u</kbd>
+      </li>
+    </ul>
+
+    <div class="border-t border-gray-100 px-5 pt-3 pb-3 flex items-center justify-between">
+      <p class="text-xs text-gray-400">Disabled while typing in a field.</p>
+      <div class="flex items-center gap-x-1 text-xs text-gray-400">
+        <span>Toggle help</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">?</kbd>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="mb-8 flex items-center justify-between">
   <div class="flex items-center gap-x-3">
     <%= link_to inboxes_path,
@@ -11,7 +61,45 @@
     <span class="text-gray-300">/</span>
     <h1 class="text-2xl font-semibold text-gray-900"><%= @inbox.name.presence || '(untitled)' %></h1>
   </div>
-  <div class="flex items-center gap-x-3">
+  <div class="flex items-center gap-x-2">
+    <% unless @inbox.processed? || @inbox.archived? %>
+      <%= link_to process_inbox_path(@inbox),
+            title: "Process (p)",
+            data: { turbo_frame: 'modal', keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "p" },
+            class: "inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-150" do %>
+        Process
+        <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">p</kbd>
+      <% end %>
+    <% end %>
+
+    <%= link_to tag_inbox_path(@inbox),
+          title: "Tag (t)",
+          data: { turbo_frame: 'modal', keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "t" },
+          class: "inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-150" do %>
+      Tag
+      <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">t</kbd>
+    <% end %>
+
+    <% if @inbox.archived? %>
+      <%= button_to unarchive_inbox_path(@inbox), method: :patch,
+            title: "Unarchive (a)",
+            data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "a" },
+            class: "inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-150 cursor-pointer" do %>
+        Unarchive
+        <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">a</kbd>
+      <% end %>
+    <% else %>
+      <%= button_to archive_inbox_path(@inbox), method: :patch,
+            title: "Archive (a)",
+            data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "a" },
+            class: "inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-150 cursor-pointer" do %>
+        Archive
+        <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">a</kbd>
+      <% end %>
+    <% end %>
+
+    <div class="w-px h-6 bg-gray-200"></div>
+
     <%= link_to edit_inbox_path(@inbox),
           title: "Edit (e)",
           data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "e" },
@@ -19,9 +107,16 @@
       Edit
       <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">e</kbd>
     <% end %>
+
     <%= button_to 'Delete', @inbox, method: :delete,
           data: { turbo_confirm: "Delete \"#{@inbox.name}\"? This cannot be undone." },
           class: "inline-flex items-center rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-100 transition-colors duration-150 cursor-pointer" %>
+
+    <button title="Keyboard shortcuts (?)"
+            data-action="click->keyboard-shortcuts#toggleHelp"
+            class="inline-flex items-center justify-center rounded-full w-8 h-8 bg-white text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-150 font-semibold text-sm">
+      ?
+    </button>
   </div>
 </div>
 
@@ -92,5 +187,7 @@
     </div>
   </div>
 </div>
+
+<turbo-frame id="modal"></turbo-frame>
 
 </div><%# end keyboard-shortcuts %>
