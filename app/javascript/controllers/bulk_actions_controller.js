@@ -130,6 +130,6 @@ export default class extends Controller {
     })
 
     document.body.appendChild(form)
-    form.submit()
+    form.requestSubmit()
   }
 }

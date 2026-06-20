@@ -1,26 +1,105 @@
 ---
-description: CRUD view and controller patterns established in the Inboxes feature. Follow these conventions when building any new resource CRUD pages.
+description: Full-featured CRUD patterns from Inboxes — Turbo modals, keyboard shortcuts, bulk actions, filters. Use this when building new app sections (Tasks, Projects, etc.).
 globs: app/views/**/*.html.erb,app/controllers/**/*.rb
 alwaysApply: false
 ---
 
 # CRUD Patterns (Inboxes reference implementation)
 
+**Inboxes is the canonical template for every new main app section** (e.g. Tasks, Projects). When adding a new resource, replicate the full Inboxes experience — not the simpler Workflows-style CRUD. That means:
+
+- **Turbo Frames** for in-page modals (`<turbo-frame id="modal">` on index/show; modal views load into it)
+- **Keyboard shortcuts** on index, show, new, edit, bulk actions, and modals (`keyboard-shortcuts` Stimulus controller)
+- **Bulk selection + actions** (`bulk-actions` + `list-navigation` Stimulus controllers)
+- **Filter tabs, search, sort, list/grid toggle** (disclosure + search-form controllers)
+- **Consistent Tailwind tokens** (cards, badges, buttons — see table below)
+
+Copy `app/views/inboxes/` and `InboxesController` as your starting point, then rename and adapt domain-specific actions (Process/Tag → whatever the resource needs).
+
+## Building a new section (checklist)
+
+Use this when scaffolding Tasks, Projects, or any similar resource:
+
+| Layer | What to create | Notes |
+|-------|----------------|-------|
+| Routes | Standard REST + collection bulk routes + member modal routes | See Inboxes routes for `bulk_*`, `*_modal`, `mark_*` patterns |
+| Controller | `*Controller` mirroring `InboxesController` | Swap `@inbox`/`inbox_params` for your resource; keep Turbo/modal/bulk action structure |
+| Views | `index`, `show`, `new`, `edit`, `_form`, `_header`, `_filter_tabs`, `_bulk_actions` | One partial per concern; don't inline header/filter logic into index |
+| Modals | One view per modal action (single + bulk variants) | Each wraps content in `<turbo-frame id="modal">`; form uses `data: { turbo_frame: '_top' }` |
+| Stimulus | Reuse existing controllers — do not reimplement | `keyboard-shortcuts`, `bulk-actions`, `list-navigation`, `disclosure`, `search-form`, `modal` |
+| Shortcuts | Wire every actionable link/button | Add `data-keyboard-shortcuts-target="trigger"` + key; show `<kbd>` hints; include help overlay on index/show |
+
+**Always include (every new section):** keyboard shortcuts, Turbo modal frame, bulk select bar, filter/search/sort UI, list + grid views, empty states, flash-friendly redirects.
+
+**Adapt per resource:** filter tab names, bulk action buttons, show-page action buttons, modal forms, status badges.
+
+## Index page header chrome (reuse this layout)
+
+Every new section index (Tasks, Projects, etc.) uses the **same three-tier header** shown in Inbox. Copy the partial structure from `app/views/inboxes/` — do not invent a new layout.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Title + subtitle          [Filters] [Sort] [+ New Item n] [?]  │  ← _header.html.erb
+├─────────────────────────────────────────────────────────────────┤
+│  [Tab ●count] [Tab ●count] ...     [Search...] [list] [grid]    │  ← _filter_tabs.html.erb
+├─────────────────────────────────────────────────────────────────┤
+│  ☐ N items                    [Process p] [Tag t] [Archive a] … │  ← _bulk_actions.html.erb
+└─────────────────────────────────────────────────────────────────┘
+│  list table or grid cards                                       │
+```
+
+| Tier | Partial | Same across sections | Adapt per resource |
+|------|---------|----------------------|-------------------|
+| 1 — Page header | `_header.html.erb` | Title/subtitle row, Filters + Sort disclosure buttons, `+ New` CTA with `n` shortcut, `?` help | Title, subtitle, filter fields in panel, sort columns |
+| 2 — Tabs + search | `_filter_tabs.html.erb` | Pill tabs with count badges, debounced search, list/grid toggle | Tab names/keys, counts hash, search placeholder |
+| 3 — Bulk bar | `_bulk_actions.html.erb` | Select-all + item count, disabled-until-selected buttons with `<kbd>` hints | Button labels, icons, bulk actions (Process/Tag → whatever fits) |
+
+**Fixed (don't change):** spacing, button styles, pill tab styling, search input shape, list/grid icon toggles, bulk bar card wrapper, keyboard shortcut wiring, disclosure/sort/search Stimulus hooks.
+
+**Variable (customize):** copy only — "Inbox" → "Tasks", tab labels, which filters appear in the panel, which bulk buttons show (and context-aware variants like Archive vs Unarchive).
+
+In `index.html.erb`, always render the three partials in order before the list/grid content:
+
+```erb
+<%= render 'header' %>
+<%= render 'filter_tabs', counts: @counts, current_filter: params[:filter] || 'default' %>
+<div data-controller="bulk-actions list-navigation" …>
+  <%= render 'bulk_actions', count: @resources.size, filter: params[:filter] %>
+  <%# table or grid %>
+</div>
+```
+
+## Reusable Stimulus controllers
+
+These already exist in `app/javascript/controllers/` — wire them up, don't write new ones:
+
+| Controller | Used on | Purpose |
+|------------|---------|---------|
+| `keyboard-shortcuts` | index, show, new, edit | Global hotkeys + help overlay |
+| `bulk-actions` | index list wrapper | Select-all, bulk process/tag/archive/delete via modal URLs |
+| `list-navigation` | index list wrapper | `j`/`k` row focus, `x` toggle, `↵` open |
+| `disclosure` | `_header` | Filter panel + sort dropdown |
+| `search-form` | `_filter_tabs` | Debounced GET search with `data-turbo-action="replace"` |
+| `modal` | modal dialog panel | `Esc` cancel, `↵` submit |
+
 ## Controller
 
 - `before_action :set_resource` for all member actions
-- On failure: `render :new/:edit, status: :unprocessable_entity`
+- On failure: `render :new/:edit, status: :unprocessable_entity`; re-populate any collection ivars needed by the form (e.g. `@tags`)
 - On success: `redirect_to @resource, notice: "Resource was successfully created/updated."`
 - Private `set_resource` (finds by `params[:id]`) and `resource_params` (strong params)
-- For JSON columns: expose virtual `*_text` attributes; populate in `new`/`edit` with `JSON.pretty_generate`
+- For JSON columns: expose virtual `*_text` attributes; populate in `new`/`edit` via a private `populate_json_text_fields` helper using `JSON.pretty_generate`
+- Modal actions: GET `*_modal` renders the modal view; PATCH `mark_*` performs the update (render modal on failure with `status: :unprocessable_entity`)
+- Bulk actions: separate `bulk_*_modal` (GET, renders modal) and `bulk_*` (PATCH, redirects with notice) endpoints
 
 ```ruby
-# ✅ GOOD
+# ✅ GOOD — same structure for TasksController, ProjectsController, etc.
 def create
-  @inbox = Inbox.new(inbox_params)
-  if @inbox.save
-    redirect_to @inbox, notice: "Inbox was successfully created."
+  @task = Task.new(task_params)
+  if @task.save
+    redirect_to @task, notice: "Task was successfully created."
   else
+    @tags = Tag.order(:name)  # re-populate any ivars the form needs
     render :new, status: :unprocessable_entity
   end
 end
@@ -28,23 +107,58 @@ end
 
 ## Index View
 
+Required for every new section. Structure:
+
 - Root: `<div data-controller="keyboard-shortcuts">`
-- Default: list (table), optional grid via `?view=grid`
+- Inline help overlay: `data-keyboard-shortcuts-target="help"` with `data-action="click->keyboard-shortcuts#closeHelp"`, toggled via `?` button or `keyboard-shortcuts#toggleHelp`
 - Render `'header'` and `'filter_tabs'` partials at the top
+- List content wrapper: `data-controller="bulk-actions list-navigation"` with URL value attributes for bulk endpoints
+- Render `'bulk_actions'` partial (select-all + bulk action buttons)
+- Default: list (table), optional grid via `?view=grid`
+- Rows/cards: `data-list-navigation-target="row"`; View links: `data: { list_navigation_view: true }`
 - Bulk select: `data-bulk-actions-target="checkbox"`, `data-action="change->bulk-actions#updateActions"`
-- Empty state: centered SVG + `<h3>` + `<p>` inside `rounded-lg border-2 border-dashed border-gray-300 py-16 text-center`
+- Empty state: centered SVG + `<h3>` + `<p>`; grid uses `rounded-lg border-2 border-dashed border-gray-300 py-16`, list uses `py-16` inside the table card
 - End of template: `<turbo-frame id="modal"></turbo-frame>`
+
+### Header partial (`_header.html.erb`)
+
+- Title + subtitle; action row on the right
+- Filters toggle + sort dropdown: both use `data-controller="disclosure"` with `data-disclosure-target="panel"`
+- Preserve query params (filter, sort, direction, source, query, view) when navigating
+- Primary CTA (New): `rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white` with `n` shortcut
+- Help toggle button: `data-action="click->keyboard-shortcuts#toggleHelp"`
+
+### Filter tabs partial (`_filter_tabs.html.erb`)
+
+- Pill tabs with counts; active tab: `bg-gray-900 text-white`, inactive: `text-gray-600 hover:bg-gray-100`
+- Search form: `data-controller="search-form"`, `data-turbo-action="replace"`, preserve other params via hidden inputs
+- List/grid toggle: icon buttons, active state `border-gray-400 bg-gray-100`
+
+### Bulk actions partial (`_bulk_actions.html.erb`)
+
+- Bar: `rounded-lg border border-gray-200 bg-white px-4 py-2.5 shadow-sm`
+- Select-all: `data-bulk-actions-target="selectAll"`, `data-action="change->bulk-actions#selectAll"`
+- Action buttons: `data-bulk-actions-target="actionButton"`, disabled until selection; include keyboard shortcut hints
+- Context-aware actions (e.g. Archive vs Unarchive based on current filter)
 
 ## Show View
 
-- Root: `<div data-controller="keyboard-shortcuts">`
-- Header row: back link with `u` shortcut, resource title, Edit button (`e`), Delete `button_to` (red)
-- Details card: `<dl class="divide-y divide-gray-100">` with `<div class="grid grid-cols-3 gap-4 px-6 py-4">` rows
-- JSON display: `<pre class="overflow-auto rounded-md bg-gray-50 p-4 font-mono text-xs text-gray-800 leading-relaxed max-h-80"><%= JSON.pretty_generate(resource.field || {}) %></pre>`
+Required for every new section. Structure:
+
+- Root: `<div data-controller="keyboard-shortcuts">` with inline help overlay
+- Header row (`mb-8 flex items-center justify-between`):
+  - Left: breadcrumb back link with `u` shortcut (`← Section / Title`)
+  - Right: resource-specific action buttons (e.g. Inbox: Process, Tag, Archive) + divider + Edit (`e`) + Delete (`d`, danger style) + `?` help button
+  - Modal actions: `data: { turbo_frame: 'modal', keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "…" }`
+  - Destructive confirms: `form: { data: { turbo_confirm: "…" } }`
+- Details card: section header (`border-b border-gray-100 bg-gray-50 px-6 py-3`) + `<dl class="divide-y divide-gray-100">` with `<div class="grid grid-cols-3 gap-4 px-6 py-4">` rows (`dt` + `dd class="col-span-2"`)
+- JSON display: side-by-side cards in `grid grid-cols-1 gap-6 lg:grid-cols-2`, each with section header + `<pre class="overflow-auto rounded-md bg-gray-50 p-4 font-mono text-xs text-gray-800 leading-relaxed max-h-80">`
+- End: `<turbo-frame id="modal"></turbo-frame>`
 
 ## New / Edit Views
 
-- Breadcrumb back-link at top (edit wraps in `data-controller="keyboard-shortcuts"`)
+- Both wrap in `data-controller="keyboard-shortcuts"`
+- Breadcrumb back-link (`mb-8 flex items-center gap-x-3`): `← Parent / Title` with `u` shortcut; new links to index, edit links to show
 - Render form inside: `<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">`
 
 ## Form Partial
@@ -53,23 +167,51 @@ Error banner (always first):
 ```erb
 <% if resource.errors.any? %>
   <div class="rounded-md bg-red-50 border border-red-200 p-4">
-    <!-- SVG icon + pluralize(count, 'error') heading + ul of full_messages -->
+    <div class="flex">
+      <!-- SVG icon -->
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-red-800">
+          <%= pluralize(resource.errors.count, 'error') %> prevented this … from being saved:
+        </h3>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-red-700">
+          <% resource.errors.full_messages.each do |msg| %><li><%= msg %></li><% end %>
+        </ul>
+      </div>
+    </div>
   </div>
 <% end %>
 ```
 
-Standard input class:
+- Form root: `form_with(model: resource, class: "space-y-6")`
+- Label class: `block text-sm font-medium text-gray-700 mb-1`
+- Standard input class:
 ```
 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500
 ```
+- JSON text areas: add `font-mono`, `spellcheck: false`; side-by-side in `grid grid-cols-1 gap-6 lg:grid-cols-2`; helper text below each field
+- Basic fields: two-column grid `grid grid-cols-1 gap-6 sm:grid-cols-2` where appropriate
 
-Submit button:
+Submit row:
 ```
-inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors duration-150 cursor-pointer
+inline-flex items-center gap-x-1.5 justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors duration-150 cursor-pointer
 ```
 
-- Submit label: `resource.persisted? ? 'Update Resource' : 'Create Resource'`
-- Cancel link: `resource.persisted? ? resource : resources_path`
+- Submit label: `resource.persisted? ? 'Update …' : 'Create …'`
+- Submit shortcut: `data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "Enter" }`
+- Cancel link: `resource.persisted? ? resource : resources_path`, class `text-sm font-medium text-gray-600 hover:text-gray-900`
+
+## Modal Views (Turbo Frame)
+
+Use for any action that should open in-page without a full navigation (assign workflow, set status, pick assignee, etc.). Same pattern for single-item and bulk modals.
+
+- Wrapped in `<turbo-frame id="modal">`
+- Full-screen overlay: `fixed inset-0 z-50 flex items-center justify-center` + backdrop `bg-gray-500/75`
+- Dialog panel: `relative z-10 w-full max-w-md rounded-xl bg-white shadow-2xl` with `data-controller="modal"`
+- Header: title + close link (`data: { turbo_frame: 'modal' }`) + descriptive subtitle
+- Form: `data: { turbo_frame: '_top' }` so success redirects the full page
+- Cancel: `data: { turbo_frame: 'modal', modal_target: 'cancel' }`
+- Submit: `data: { modal_target: 'submit' }`
+- Empty-state warning: `rounded-md bg-yellow-50 border border-yellow-200` when required collection is empty
 
 ## Tailwind Component Tokens
 
@@ -81,18 +223,27 @@ inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semib
 | Status: unprocessed | `bg-yellow-100 text-yellow-700` |
 | Status: processed / success | `bg-green-100 text-green-700` |
 | Status: archived / neutral | `bg-gray-100 text-gray-600` |
+| Primary button | `inline-flex items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700` |
 | Secondary button | `inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50` |
 | Danger button | `inline-flex items-center rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 ring-1 ring-inset ring-red-200 hover:bg-red-100` |
 
 ## Keyboard Shortcuts
 
+Required on every new section — index, show, new, edit, bulk bar, and modals.
+
 Root element: `data-controller="keyboard-shortcuts"`
 
-Annotate links with:
+Annotate links/buttons with:
 ```erb
 data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "e" }
 ```
 
 Show hint: `<kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-400">e</kbd>`
 
-Standard shortcuts: `n` new, `e` edit, `u` back, `p` process, `a` archive, `d` delete, `?` help overlay.
+Standard shortcuts (adapt labels in help overlay; keep keys consistent across sections):
+- Index: `n` new, `p`/`t`/`a`/`d` bulk actions, `j`/`k` navigate, `x` toggle select, `↵` view focused, `?` help
+- Show: `e` edit, resource-specific keys for modal actions, `a` archive/unarchive, `d` delete, `u` back, `?` help
+- Modals: `↵` submit, `Esc` cancel/close
+- Forms: `Enter` submit (after exiting field with Esc)
+
+Help overlay: `data-keyboard-shortcuts-target="help"`, sections grouped by context (list, navigation, item view, modals). Copy the overlay structure from `inboxes/index.html.erb` and customize the action names.

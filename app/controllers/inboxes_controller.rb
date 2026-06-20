@@ -138,7 +138,7 @@ class InboxesController < ApplicationController
   def mark_tagged
     tag_id = params.dig(:inbox, :tag_id).presence
     @inbox.update(tag_id: tag_id)
-    redirect_to inboxes_path, notice: "Tag updated."
+    redirect_to @inbox, notice: "Tag updated."
   end
 
   private
