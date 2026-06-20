@@ -6,6 +6,7 @@ export default class extends Controller {
     processModalUrl: String,
     tagModalUrl: String,
     archiveUrl: String,
+    unarchiveUrl: String,
     destroyUrl: String
   }
 
@@ -65,6 +66,17 @@ export default class extends Controller {
     if (frame) {
       frame.src = `${this.tagModalUrlValue}?${params.toString()}`
     }
+  }
+
+  bulkUnarchive() {
+    const ids = this.selectedIds
+    if (ids.length === 0) return
+
+    const count = ids.length
+    const message = `Restore ${count} item${count === 1 ? "" : "s"} to inbox?`
+    if (!confirm(message)) return
+
+    this.submitBulkForm(this.unarchiveUrlValue, "patch", ids)
   }
 
   bulkArchive() {

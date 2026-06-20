@@ -38,6 +38,23 @@
       Tag
       <kbd class="ml-1 hidden rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500 sm:inline">t</kbd>
     </button>
+    <% if filter == 'archived' %>
+    <button type="button"
+            title="Unarchive selected (a)"
+            class="inline-flex items-center gap-x-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
+            disabled
+            data-bulk-actions-target="actionButton"
+            data-keyboard-shortcuts-target="trigger"
+            data-keyboard-shortcuts-key="a"
+            data-action="click->bulk-actions#bulkUnarchive">
+      <svg class="-ml-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M2 3a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H2Z" />
+        <path fill-rule="evenodd" d="M2 7.5h16l-.811 7.71a2 2 0 0 1-1.99 1.79H4.802a2 2 0 0 1-1.99-1.79L2 7.5ZM7 11a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1Z" clip-rule="evenodd" />
+      </svg>
+      Unarchive
+      <kbd class="ml-1 hidden rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500 sm:inline">a</kbd>
+    </button>
+    <% else %>
     <button type="button"
             title="Archive selected (a)"
             class="inline-flex items-center gap-x-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
@@ -53,6 +70,7 @@
       Archive
       <kbd class="ml-1 hidden rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500 sm:inline">a</kbd>
     </button>
+    <% end %>
     <button type="button"
             title="Delete selected (d)"
             class="inline-flex items-center gap-x-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"

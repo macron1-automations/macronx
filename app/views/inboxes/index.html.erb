@@ -78,8 +78,9 @@
      data-bulk-actions-process-modal-url-value="<%= bulk_process_modal_inboxes_path %>"
      data-bulk-actions-tag-modal-url-value="<%= bulk_tag_modal_inboxes_path %>"
      data-bulk-actions-archive-url-value="<%= bulk_archive_inboxes_path %>"
+     data-bulk-actions-unarchive-url-value="<%= bulk_unarchive_inboxes_path %>"
      data-bulk-actions-destroy-url-value="<%= bulk_destroy_inboxes_path %>">
-  <%= render 'bulk_actions', count: @inboxes.size %>
+  <%= render 'bulk_actions', count: @inboxes.size, filter: params[:filter] %>
 
   <% if params[:view] == 'grid' %>
     <%# Grid view %>
@@ -126,10 +127,14 @@
                   <%= link_to 'Tag', tag_inbox_path(inbox),
                         data: { turbo_frame: 'modal' },
                         class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
-                  <% unless inbox.archived? %>
+                  <% if inbox.archived? %>
+                    <%= button_to 'Unarchive', unarchive_inbox_path(inbox), method: :patch,
+                          class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                  <% else %>
                     <%= button_to 'Archive', archive_inbox_path(inbox), method: :patch,
                           class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
                   <% end %>
+                  <%= link_to 'Edit', edit_inbox_path(inbox), class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" %>
                   <%= button_to 'Delete', inbox, method: :delete,
                         data: { turbo_confirm: "Delete \"#{inbox.name}\"? This cannot be undone." },
                         class: "text-red-600 hover:text-red-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
@@ -213,7 +218,10 @@
                     <%= link_to 'Tag', tag_inbox_path(inbox),
                           data: { turbo_frame: 'modal' },
                           class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
-                    <% unless inbox.archived? %>
+                    <% if inbox.archived? %>
+                      <%= button_to 'Unarchive', unarchive_inbox_path(inbox), method: :patch,
+                            class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                    <% else %>
                       <%= button_to 'Archive', archive_inbox_path(inbox), method: :patch,
                             class: "text-gray-600 hover:text-gray-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
                     <% end %>
