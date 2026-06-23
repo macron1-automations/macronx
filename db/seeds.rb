@@ -10,10 +10,10 @@
 
 # Create a default admin user for development. Change the email/password before running in production.
 if Rails.env.development?
-  admin = User.find_or_create_by!(email: "admin@example.com") do |u|
-    u.password = "password"
-    u.password_confirmation = "password"
-  end
-  admin.update!(admin: true) unless admin.admin?
-  puts "Admin user ready: #{admin.email}"
+  admin = User.find_or_initialize_by(email: "admin@example.com")
+  admin.password = "password"
+  admin.password_confirmation = "password"
+  admin.admin = true
+  admin.save!
+  puts "Dev user ready: #{admin.email} (password: password)"
 end

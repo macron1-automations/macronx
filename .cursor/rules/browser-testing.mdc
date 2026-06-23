@@ -1,0 +1,40 @@
+---
+description: Browser testing workflow with local Devise dev account
+alwaysApply: true
+---
+
+# Browser Testing
+
+Use the MCP browser (`cursor-ide-browser`) for visual and interactive UI verification — Turbo/Stimulus behavior, login flows, layout. Prefer request specs for API and controller logic.
+
+## Pre-flight checklist
+
+Before opening the browser:
+
+1. Ensure the dev user exists: `bin/rails db:seed` (first-time setup: `bin/rails db:prepare`)
+2. Ensure the dev server is running on `http://localhost:3000` (`bin/dev`, or `bin/rails server` if CSS is already built)
+3. Check the terminals folder — do not start a duplicate server if port 3000 is already in use
+
+## Dev login credentials
+
+| Field | Value |
+|-------|-------|
+| URL | `http://localhost:3000/users/sign_in` |
+| Email | `admin@example.com` |
+| Password | `password` |
+
+Seeded in `db/seeds.rb` (development only). Re-run `bin/rails db:seed` if login fails — it resets the password to the value above.
+
+## MCP browser login flow
+
+1. `browser_navigate` → sign-in URL
+2. `browser_snapshot` → confirm the login form is present
+3. Fill email and password fields, click "Log in"
+4. `browser_snapshot` again → confirm redirect to an authenticated page (not the login form)
+5. If login fails: run `bin/rails db:seed` and retry
+
+## Notes
+
+- App requires a modern browser (`allow_browser versions: :modern` in `ApplicationController`); MCP Chrome is fine
+- Admin user can access the main app and `/avo`
+- These credentials are development-only — do not use in production
