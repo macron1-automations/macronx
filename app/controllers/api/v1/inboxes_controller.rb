@@ -28,6 +28,7 @@ module Api
       param :inbox, Hash, required: true do
         param :source,   String, desc: 'Origin identifier (e.g. "ratatui")'
         param :summary,  String, desc: "Short human-readable summary"
+        param :body,     String, desc: "Full text content"
         param :payload,  Hash,   desc: "Arbitrary JSON payload"
         param :metadata, Hash,   desc: "Arbitrary JSON metadata"
         param :attachments, Array, desc: "File attachments (multipart/form-data only; use inbox[attachments][] fields)"
@@ -45,7 +46,7 @@ module Api
       private
 
       def inbox_params
-        params.require(:inbox).permit(:source, :summary, payload: {}, metadata: {}, attachments: [])
+        params.require(:inbox).permit(:source, :summary, :body, payload: {}, metadata: {}, attachments: [])
       end
 
       def inbox_params_without_attachments
@@ -63,6 +64,7 @@ module Api
           name: inbox.name,
           source: inbox.source,
           summary: inbox.summary,
+          body: inbox.body,
           payload: inbox.payload,
           metadata: inbox.metadata,
           attachments: inbox.attachments.map { |attachment| serialize_attachment(attachment) },

@@ -167,6 +167,10 @@
         <dd class="col-span-2 text-sm text-gray-900"><%= @inbox.summary.presence || '—' %></dd>
       </div>
       <div class="grid grid-cols-3 gap-4 px-6 py-4">
+        <dt class="text-sm font-medium text-gray-500">Body</dt>
+        <dd class="col-span-2 text-sm text-gray-900 whitespace-pre-wrap"><%= @inbox.body.presence || '—' %></dd>
+      </div>
+      <div class="grid grid-cols-3 gap-4 px-6 py-4">
         <dt class="text-sm font-medium text-gray-500">Created</dt>
         <dd class="col-span-2 text-sm text-gray-900"><%= @inbox.created_at.strftime('%B %d, %Y at %H:%M UTC') %></dd>
       </div>

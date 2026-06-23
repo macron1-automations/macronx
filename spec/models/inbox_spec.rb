@@ -88,6 +88,21 @@ RSpec.describe Inbox, type: :model do
     end
   end
 
+  describe 'body' do
+    it 'is valid without a body' do
+      expect(build(:inbox, body: nil)).to be_valid
+    end
+
+    it 'is valid with a body' do
+      expect(build(:inbox, body: 'Full message text')).to be_valid
+    end
+
+    it 'persists and reloads body' do
+      inbox = create(:inbox, body: 'hello')
+      expect(inbox.reload.body).to eq('hello')
+    end
+  end
+
   describe 'attachments' do
     it 'can attach files' do
       inbox = create(:inbox)

@@ -37,6 +37,12 @@ RSpec.describe 'Inboxes', type: :request do
         get inboxes_path
         expect(response.body).to include('Has attachments')
       end
+
+      it 'does not display body text on the index' do
+        create(:inbox, body: 'Hidden from index')
+        get inboxes_path
+        expect(response.body).not_to include('Hidden from index')
+      end
     end
 
     describe 'GET /inboxes/:id' do
@@ -56,6 +62,12 @@ RSpec.describe 'Inboxes', type: :request do
         expect(response.body).to include('sample.txt')
         expect(response.body).not_to include('Add attachments')
       end
+
+      it 'displays the body text' do
+        inbox_with_body = create(:inbox, body: 'Show me this')
+        get inbox_path(inbox_with_body)
+        expect(response.body).to include('Show me this')
+      end
     end
 
     describe 'GET /inboxes/new' do
@@ -68,6 +80,11 @@ RSpec.describe 'Inboxes', type: :request do
         get new_inbox_path
         expect(response.body).to include('{}')
       end
+
+      it 'includes a body textarea' do
+        get new_inbox_path
+        expect(response.body).to include('name="inbox[body]"')
+      end
     end
 
     describe 'POST /inboxes' do
@@ -78,6 +95,7 @@ RSpec.describe 'Inboxes', type: :request do
               name: 'My Inbox',
               source: 'webhook',
               summary: 'A test entry',
+              body: 'Created body text',
               payload_text: '{"event": "created"}',
               metadata_text: '{"version": 1}'
             }
@@ -99,6 +117,17 @@ RSpec.describe 'Inboxes', type: :request do
         it 'stores the parsed JSON metadata' do
           post inboxes_path, params: valid_params
           expect(Inbox.last.metadata).to eq('version' => 1)
+        end
+
+        it 'stores the body text' do
+          post inboxes_path, params: valid_params
+          expect(Inbox.last.body).to eq('Created body text')
+        end
+
+        it 'shows the body on the show page after create' do
+          post inboxes_path, params: valid_params
+          follow_redirect!
+          expect(response.body).to include('Created body text')
         end
 
         it 'creates the inbox with attachments' do
@@ -161,6 +190,12 @@ RSpec.describe 'Inboxes', type: :request do
         expect(response.body).to include('sample.txt')
         expect(response.body).to include('permanently removed on save')
       end
+
+      it 'pre-populates the body textarea' do
+        inbox_with_body = create(:inbox, body: 'Edit me')
+        get edit_inbox_path(inbox_with_body)
+        expect(response.body).to include('Edit me')
+      end
     end
 
     describe 'PATCH /inboxes/:id' do
@@ -178,6 +213,38 @@ RSpec.describe 'Inboxes', type: :request do
           expect(response.body).to include('successfully updated')
           expect(inbox.reload.name).to eq('Updated Name')
           expect(inbox.reload.payload).to eq('updated' => true)
+        end
+
+        it 'updates the body text' do
+          patch inbox_path(inbox), params: {
+            inbox: {
+              name: inbox.name,
+              body: 'Updated body',
+              payload_text: '{}',
+              metadata_text: '{}'
+            }
+          }
+          expect(response).to redirect_to(inbox)
+          expect(inbox.reload.body).to eq('Updated body')
+          follow_redirect!
+          expect(response.body).to include('Updated body')
+        end
+
+        it 'updates the body via multipart form submission' do
+          patch inbox_path(inbox), params: {
+            inbox: {
+              name: inbox.name,
+              source: inbox.source,
+              summary: inbox.summary,
+              body: 'Multipart body update',
+              tag_id: '',
+              payload_text: '{}',
+              metadata_text: '{}',
+              attachments: [ sample_file ]
+            }
+          }
+          expect(response).to redirect_to(inbox)
+          expect(inbox.reload.body).to eq('Multipart body update')
         end
 
         it 'purges selected attachments' do

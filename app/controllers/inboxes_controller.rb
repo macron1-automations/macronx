@@ -157,7 +157,7 @@ class InboxesController < ApplicationController
   end
 
   def inbox_params
-    params.require(:inbox).permit(:name, :source, :summary, :tag_id, :payload_text, :metadata_text, attachments: [])
+    params.require(:inbox).permit(:name, :source, :summary, :body, :tag_id, :payload_text, :metadata_text, attachments: [])
   end
 
   def inbox_update_params

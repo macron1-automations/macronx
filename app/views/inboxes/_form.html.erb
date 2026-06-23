@@ -51,6 +51,13 @@
           placeholder: "A short description of this inbox entry" %>
   </div>
 
+  <div>
+    <%= f.label :body, class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :body, rows: 6,
+          class: "block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500",
+          placeholder: "Full text content" %>
+  </div>
+
   <%# JSON fields %>
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
     <div>
