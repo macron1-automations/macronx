@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  apipie
   devise_for :users
 
   authenticate :user, ->(u) { u.admin? } do
