@@ -44,6 +44,31 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
       expect(body['attachments'].map { |a| a['filename'] }).to contain_exactly('sample.txt', 'second.txt')
     end
 
+    it 'creates an inbox with a custom name' do
+      post api_v1_inboxes_path, params: {
+        inbox: {
+          name: 'My custom inbox',
+          source: 'api',
+          summary: 'Named item'
+        }
+      }, headers: auth_headers
+
+      expect(response).to have_http_status(:created)
+      body = JSON.parse(response.body)
+      expect(body['name']).to eq('My custom inbox')
+      expect(Inbox.last.name).to eq('My custom inbox')
+    end
+
+    it 'auto-generates a name when none is provided' do
+      post api_v1_inboxes_path, params: {
+        inbox: { source: 'api', summary: 'Unnamed item' }
+      }, headers: auth_headers
+
+      expect(response).to have_http_status(:created)
+      body = JSON.parse(response.body)
+      expect(body['name']).to match(/\Ainbox-[0-9a-f]{8}\z/)
+    end
+
     it 'creates an inbox with a body' do
       post api_v1_inboxes_path, params: {
         inbox: {
