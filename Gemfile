@@ -57,9 +57,6 @@ gem "thruster", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 1.2"
 
-# Supabase Storage (S3-compatible) for Active Storage
-gem "aws-sdk-s3", require: false
-
 group :development, :test do
   gem "factory_bot_rails"
   gem "rspec-rails"

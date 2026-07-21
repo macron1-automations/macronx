@@ -22,7 +22,7 @@ AI tools are most useful when they can receive context from the places where wor
 
 MacronX acts as the shared intake layer. It lets you capture raw input quickly, preserve structured context, attach files, and decide whether each item should be handled automatically or reviewed manually.
 
-MacronX is designed to stay cheap to run. The Rails app runs on your machine; development connects to a [Supabase](https://supabase.com) Postgres database on the free tier instead of requiring a local database server or paid hosting. That keeps the persistent data layer free while you iterate locally. Workflows are intended to call local LLMs (Ollama, LM Studio, mlx, and similar) wherever possible, reserving paid cloud APIs for cases that truly need them.
+MacronX is designed to stay cheap to run. The Rails app, development database, and file storage run on your machine while you iterate locally. Workflows are intended to call local LLMs (Ollama, LM Studio, mlx, and similar) wherever possible, reserving paid cloud APIs for cases that truly need them.
 
 ## Example workflows
 
@@ -110,51 +110,29 @@ The API also supports:
 
 ## Local development
 
-MacronX is meant to run entirely on your laptop. The web app, background jobs, and file storage stay local; only the database lives in Supabase so you get managed Postgres without running `postgres` yourself or paying for a server.
+MacronX is meant to run entirely on your laptop. The web app, database, background jobs, and development file storage all use local services by default.
 
 ### Requirements
 
 - Ruby 3.4.4
 - Rails 8.1
-- A [Supabase](https://supabase.com) project (free tier is fine)
+- PostgreSQL
 
-You do **not** need a local PostgreSQL installation for development. The test suite still uses a local `macron_x_test` database created automatically by Rails.
+Development uses the local `macron_x_development` database. The test suite uses a separate local `macron_x_test` database created automatically by Rails.
 
-### Database setup (Supabase)
+### Database setup
 
-1. Create a project at [supabase.com](https://supabase.com).
-2. Open **Project Settings → Database** and note the **direct connection** host, port, database name (`postgres`), and user (`postgres`). Set or copy the database password.
-3. Copy the environment template and add your password:
+Prepare the local database:
 
-   ```sh
-   cp .env.example .env
-   ```
+```sh
+bin/rails db:prepare
+```
 
-   `bin/setup` does this automatically if `.env` is missing.
-
-4. Edit `.env` with your Supabase values:
-
-   ```sh
-   DB_HOST=db.<project-ref>.supabase.co
-   DB_PORT=5432
-   DB_NAME=postgres
-   DB_USER=postgres
-   DB_PASSWORD=your-database-password
-   ```
-
-   Keep `.env` out of git — it is listed in `.gitignore`. `.env.example` is committed as a template only.
-
-5. Prepare the remote database (runs migrations and seeds a dev user):
-
-   ```sh
-   bin/rails db:prepare
-   ```
-
-   Seeds create `admin@example.com` with password `password` (development only).
+Seeds create `admin@example.com` with password `password` (development only).
 
 ### App setup
 
-Install dependencies, copy `.env` if needed, and prepare the database:
+Install dependencies and prepare the database:
 
 ```sh
 bin/setup
@@ -201,7 +179,7 @@ This repository is intended to be safe for public collaboration, but local and p
 Do not commit:
 
 - `config/master.key`
-- `.env` (use `.env.example` as the template)
+- `.env`
 - production credentials
 - real API tokens
 - real provider keys or passwords
