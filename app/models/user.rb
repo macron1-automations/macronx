@@ -4,6 +4,8 @@ class User < ApplicationRecord
 
   API_TOKEN_LENGTH = 24
 
+  has_many :inboxes, dependent: :destroy
+
   before_create :assign_api_token
 
   def self.find_by_api_token(raw_token)

@@ -15,11 +15,11 @@
 <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
   <h2 class="text-base font-medium text-gray-900 mb-4">
     Inbox Items
-    <span class="ml-2 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700"><%= @workflow.inboxes.count %></span>
+    <span class="ml-2 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700"><%= @inboxes.size %></span>
   </h2>
-  <% if @workflow.inboxes.any? %>
+  <% if @inboxes.any? %>
     <ul class="divide-y divide-gray-100">
-      <% @workflow.inboxes.each do |inbox| %>
+      <% @inboxes.each do |inbox| %>
         <li class="py-3 flex items-center justify-between">
           <span class="text-sm font-medium text-gray-900"><%= inbox.name %></span>
           <%= link_to 'View', inbox, class: "text-sm text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>

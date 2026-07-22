@@ -2,17 +2,18 @@ class InboxesController < ApplicationController
   before_action :set_inbox, only: %i[show edit update destroy process_modal mark_processed archive unarchive tag_modal mark_tagged]
 
   def index
+    inboxes = current_user.inboxes
     @counts = {
-      unprocessed: Inbox.unprocessed.count,
-      processed: Inbox.processed_items.count,
-      archived: Inbox.archived.count
+      unprocessed: inboxes.unprocessed.count,
+      processed: inboxes.processed_items.count,
+      archived: inboxes.archived.count
     }
     @tags = Tag.order(:name)
 
     @inboxes = case params[:filter]
-    when "processed" then Inbox.processed_items
-    when "archived"  then Inbox.archived
-    else                  Inbox.unprocessed
+    when "processed" then inboxes.processed_items
+    when "archived"  then inboxes.archived
+    else                  inboxes.unprocessed
     end
 
     if params[:query].present?
@@ -29,7 +30,7 @@ class InboxesController < ApplicationController
   end
 
   def bulk_process_modal
-    @inbox_ids = Array(params[:inbox_ids])
+    @inbox_ids = selected_inboxes.ids
     @workflows = Workflow.order(:name)
     render :bulk_process
   end
@@ -38,48 +39,48 @@ class InboxesController < ApplicationController
     workflow_id = params.dig(:inbox, :workflow_id)
     return redirect_to inboxes_path, alert: "Please select a workflow." if workflow_id.blank?
 
-    Inbox.where(id: params[:inbox_ids]).update_all(processed: true, workflow_id: workflow_id)
-    redirect_to inboxes_path, notice: "#{params[:inbox_ids].to_a.size} item(s) processed."
+    count = selected_inboxes.update_all(processed: true, workflow_id: workflow_id)
+    redirect_to inboxes_path, notice: "#{count} item(s) processed."
   end
 
   def bulk_archive
-    Inbox.where(id: params[:inbox_ids]).update_all(archived: true)
-    redirect_to inboxes_path, notice: "#{params[:inbox_ids].to_a.size} item(s) archived."
+    count = selected_inboxes.update_all(archived: true)
+    redirect_to inboxes_path, notice: "#{count} item(s) archived."
   end
 
   def bulk_unarchive
-    Inbox.where(id: params[:inbox_ids]).update_all(archived: false)
-    redirect_to inboxes_path(filter: "archived"), notice: "#{params[:inbox_ids].to_a.size} item(s) restored to inbox."
+    count = selected_inboxes.update_all(archived: false)
+    redirect_to inboxes_path(filter: "archived"), notice: "#{count} item(s) restored to inbox."
   end
 
   def bulk_destroy
-    Inbox.where(id: params[:inbox_ids]).destroy_all
+    selected_inboxes.destroy_all
     redirect_to inboxes_path, notice: "Items deleted."
   end
 
   def bulk_tag_modal
-    @inbox_ids = Array(params[:inbox_ids])
+    @inbox_ids = selected_inboxes.ids
     @tags = Tag.order(:name)
     render :bulk_tag
   end
 
   def bulk_tag
     tag_id = params.dig(:inbox, :tag_id).presence
-    Inbox.where(id: params[:inbox_ids]).update_all(tag_id: tag_id)
-    redirect_to inboxes_path, notice: "#{params[:inbox_ids].to_a.size} item(s) tagged."
+    count = selected_inboxes.update_all(tag_id: tag_id)
+    redirect_to inboxes_path, notice: "#{count} item(s) tagged."
   end
 
   def show
   end
 
   def new
-    @inbox = Inbox.new(payload: {}, metadata: {})
+    @inbox = current_user.inboxes.new(payload: {}, metadata: {})
     @tags = Tag.order(:name)
     populate_json_text_fields
   end
 
   def create
-    @inbox = Inbox.new(inbox_params_without_attachments)
+    @inbox = current_user.inboxes.new(inbox_params_without_attachments)
 
     if @inbox.save
       attach_new_files
@@ -150,7 +151,11 @@ class InboxesController < ApplicationController
   private
 
   def set_inbox
-    @inbox = Inbox.find(params[:id])
+    @inbox = current_user.inboxes.find(params[:id])
+  end
+
+  def selected_inboxes
+    current_user.inboxes.where(id: Array(params[:inbox_ids]))
   end
 
   def populate_json_text_fields

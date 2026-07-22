@@ -5,5 +5,10 @@ FactoryBot.define do
     source { 'test_source' }
     payload { {} }
     metadata { {} }
+    association :user
+
+    trait :unowned do
+      user { nil }
+    end
   end
 end

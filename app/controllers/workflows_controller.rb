@@ -3,9 +3,11 @@ class WorkflowsController < ApplicationController
 
   def index
     @workflows = Workflow.order(:name)
+    @workflow_inbox_counts = current_user.inboxes.group(:workflow_id).count
   end
 
   def show
+    @inboxes = current_user.inboxes.where(workflow: @workflow).order(created_at: :desc)
   end
 
   def new

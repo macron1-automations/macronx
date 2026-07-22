@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_22_013948) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_22_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,8 +54,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_013948) do
     t.string "summary"
     t.bigint "tag_id"
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
     t.bigint "workflow_id"
     t.index ["tag_id"], name: "index_inboxes_on_tag_id"
+    t.index ["user_id"], name: "index_inboxes_on_user_id"
     t.index ["workflow_id"], name: "index_inboxes_on_workflow_id"
   end
 
@@ -91,5 +93,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_013948) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "inboxes", "tags"
+  add_foreign_key "inboxes", "users"
   add_foreign_key "inboxes", "workflows"
 end
