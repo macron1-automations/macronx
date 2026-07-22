@@ -1,0 +1,39 @@
+<%= form_with model: feed, class: "space-y-4" do |f| %>
+  <% if feed.errors.any? %>
+    <div class="rounded-md bg-red-50 border border-red-200 p-4">
+      <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
+        <% feed.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :title, class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_field :title,
+          class: "block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500",
+          placeholder: "e.g. Company News" %>
+  </div>
+
+  <div>
+    <%= f.label :feed_category_id, "Category", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.select :feed_category_id,
+          options_from_collection_for_select(@feed_categories, :id, :name, feed.feed_category_id),
+          { prompt: "Select a category" },
+          class: "block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+  </div>
+
+  <div>
+    <%= f.label :feed_url, "Feed URL", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_field :feed_url,
+          class: "block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500",
+          placeholder: "https://example.com/feed.xml" %>
+  </div>
+
+  <div class="flex items-center justify-end gap-x-3 pt-2">
+    <%= link_to 'Cancel', feeds_path,
+          class: "rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
+    <%= f.submit class: "rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors duration-150 cursor-pointer" %>
+  </div>
+<% end %>

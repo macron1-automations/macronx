@@ -27,6 +27,8 @@ Rails.application.routes.draw do
   end
 
   resources :workflows
+  resources :feeds
+  resources :feed_categories
 
   namespace :settings do
     resource :api_token, only: %i[show update]

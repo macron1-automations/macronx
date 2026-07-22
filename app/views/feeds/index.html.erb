@@ -1,0 +1,57 @@
+<div class="mb-6 flex items-start justify-between">
+  <div>
+    <h1 class="text-2xl font-semibold text-gray-900">Feeds</h1>
+    <p class="mt-1 text-sm text-gray-500">Manage RSS feeds to process</p>
+  </div>
+  <%= link_to new_feed_path, class: "inline-flex items-center gap-x-1.5 rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors duration-150" do %>
+    <svg class="-ml-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+    </svg>
+    New Feed
+  <% end %>
+</div>
+
+<% if @feeds.any? %>
+  <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Title</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Category</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Feed URL</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Created</th>
+          <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 bg-white">
+        <% @feeds.each do |feed| %>
+          <tr class="hover:bg-gray-50 transition-colors duration-100">
+            <td class="px-6 py-4 text-sm font-medium text-gray-900">
+              <%= link_to feed.title, feed, class: "hover:text-indigo-600 transition-colors duration-150" %>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500">
+              <%= link_to feed.feed_category.name, feed.feed_category, class: "hover:text-indigo-600 transition-colors duration-150" %>
+            </td>
+            <td class="max-w-sm truncate px-6 py-4 text-sm text-gray-500"><%= feed.feed_url %></td>
+            <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap"><%= feed.created_at.strftime('%b %d, %Y') %></td>
+            <td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
+              <div class="flex items-center justify-end gap-x-3">
+                <%= link_to 'Edit', edit_feed_path(feed), class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" %>
+                <%= button_to 'Delete', feed, method: :delete,
+                      data: { turbo_confirm: "Delete \"#{feed.title}\"? This cannot be undone." },
+                      class: "text-red-600 hover:text-red-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-16 text-center">
+    <%= icon("rss", class: "mx-auto h-12 w-12 text-gray-400") %>
+    <h3 class="mt-4 text-sm font-semibold text-gray-900">No feeds</h3>
+    <p class="mt-1 text-sm text-gray-500">Add an RSS feed to prepare it for processing.</p>
+    <%= link_to 'New Feed', new_feed_path, class: "mt-6 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors duration-150" %>
+  </div>
+<% end %>
