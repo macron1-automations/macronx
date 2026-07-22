@@ -30,7 +30,7 @@
             </td>
             <td class="px-6 py-4 text-sm text-gray-500">
               <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
-                <%= workflow.inboxes.count %>
+                <%= @workflow_inbox_counts.fetch(workflow.id, 0) %>
               </span>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap"><%= workflow.created_at.strftime('%b %d, %Y') %></td>

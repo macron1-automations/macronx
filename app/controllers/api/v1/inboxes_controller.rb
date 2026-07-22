@@ -11,14 +11,14 @@ module Api
 
       api :GET, "/v1/inboxes", "List all inbox entries"
       def index
-        inboxes = Inbox.order(created_at: :desc)
+        inboxes = @current_api_user.inboxes.with_attached_attachments.order(created_at: :desc)
         render json: inboxes.map { |i| serialize(i) }
       end
 
       api :GET, "/v1/inboxes/:id", "Fetch a single inbox entry"
       param :id, :number, required: true, desc: "Inbox ID"
       def show
-        inbox = Inbox.find(params[:id])
+        inbox = @current_api_user.inboxes.find(params[:id])
         render json: serialize(inbox)
       rescue ActiveRecord::RecordNotFound
         render json: { error: "Not found" }, status: :not_found
@@ -35,7 +35,7 @@ module Api
         param :attachments, Array, desc: "File attachments (multipart/form-data only; use inbox[attachments][] fields)"
       end
       def create
-        inbox = Inbox.new(inbox_params_without_attachments)
+        inbox = @current_api_user.inboxes.new(inbox_params_without_attachments)
         if inbox.save
           attach_files(inbox)
           render json: serialize(inbox), status: :created

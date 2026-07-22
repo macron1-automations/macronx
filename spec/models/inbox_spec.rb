@@ -7,6 +7,16 @@ RSpec.describe Inbox, type: :model do
     end
   end
 
+  describe 'user association' do
+    it 'is valid with a user' do
+      expect(build(:inbox, user: build(:user))).to be_valid
+    end
+
+    it 'allows legacy inboxes without a user' do
+      expect(build(:inbox, :unowned)).to be_valid
+    end
+  end
+
   describe 'JSON virtual attributes' do
     describe '#payload_text=' do
       it 'parses valid JSON into the payload column on validation' do

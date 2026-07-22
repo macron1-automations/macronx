@@ -1,4 +1,5 @@
 class Inbox < ApplicationRecord
+  belongs_to :user, optional: true
   belongs_to :workflow, optional: true
   belongs_to :tag, optional: true
 

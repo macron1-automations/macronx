@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Inboxes', type: :request do
   let(:user) { create(:user) }
-  let!(:inbox) { create(:inbox) }
+  let!(:inbox) { create(:inbox, user: user) }
   let(:sample_file) { fixture_file_upload('sample.txt', 'text/plain') }
   let(:second_file) { fixture_file_upload('second.txt', 'text/plain') }
 
@@ -39,9 +39,21 @@ RSpec.describe 'Inboxes', type: :request do
       end
 
       it 'does not display body text on the index' do
-        create(:inbox, body: 'Hidden from index')
+        create(:inbox, user: user, body: 'Hidden from index')
         get inboxes_path
         expect(response.body).not_to include('Hidden from index')
+      end
+
+      it 'only lists inboxes owned by the signed-in user' do
+        owned_inbox = create(:inbox, user: user, name: 'Owned inbox')
+        other_inbox = create(:inbox, name: 'Other user inbox')
+        legacy_inbox = create(:inbox, :unowned, name: 'Legacy inbox')
+
+        get inboxes_path
+
+        expect(response.body).to include(owned_inbox.name)
+        expect(response.body).not_to include(other_inbox.name)
+        expect(response.body).not_to include(legacy_inbox.name)
       end
 
       it 'includes a tag filter control' do
@@ -56,8 +68,8 @@ RSpec.describe 'Inboxes', type: :request do
       it 'filters inboxes by tag' do
         bug = create(:tag, name: 'Bug')
         feature = create(:tag, name: 'Feature')
-        tagged_inbox = create(:inbox, name: 'Tagged bug item', tag: bug)
-        other_inbox = create(:inbox, name: 'Tagged feature item', tag: feature)
+        tagged_inbox = create(:inbox, user: user, name: 'Tagged bug item', tag: bug)
+        other_inbox = create(:inbox, user: user, name: 'Tagged feature item', tag: feature)
 
         get inboxes_path, params: { tag: bug.id }
 
@@ -93,9 +105,25 @@ RSpec.describe 'Inboxes', type: :request do
       end
 
       it 'displays the body text' do
-        inbox_with_body = create(:inbox, body: 'Show me this')
+        inbox_with_body = create(:inbox, user: user, body: 'Show me this')
         get inbox_path(inbox_with_body)
         expect(response.body).to include('Show me this')
+      end
+
+      it 'returns not found for another user inbox' do
+        other_inbox = create(:inbox)
+
+        get inbox_path(other_inbox)
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'returns not found for an unowned legacy inbox' do
+        legacy_inbox = create(:inbox, :unowned)
+
+        get inbox_path(legacy_inbox)
+
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -134,6 +162,7 @@ RSpec.describe 'Inboxes', type: :request do
         it 'creates the inbox and redirects to show' do
           expect { post inboxes_path, params: valid_params }.to change(Inbox, :count).by(1)
           expect(response).to redirect_to(Inbox.last)
+          expect(Inbox.last.user).to eq(user)
           follow_redirect!
           expect(response.body).to include('successfully created')
         end
@@ -200,7 +229,7 @@ RSpec.describe 'Inboxes', type: :request do
 
     describe 'GET /inboxes/:id/edit' do
       it 'returns 200 and pre-populates JSON fields' do
-        inbox_with_data = create(:inbox, payload: { 'x' => 1 }, metadata: { 'y' => 2 })
+        inbox_with_data = create(:inbox, user: user, payload: { 'x' => 1 }, metadata: { 'y' => 2 })
         get edit_inbox_path(inbox_with_data)
         expect(response).to have_http_status(:ok)
         # Textareas HTML-escape quotes, so JSON is encoded as &quot;x&quot;: 1
@@ -221,9 +250,17 @@ RSpec.describe 'Inboxes', type: :request do
       end
 
       it 'pre-populates the body textarea' do
-        inbox_with_body = create(:inbox, body: 'Edit me')
+        inbox_with_body = create(:inbox, user: user, body: 'Edit me')
         get edit_inbox_path(inbox_with_body)
         expect(response.body).to include('Edit me')
+      end
+
+      it 'returns not found for another user inbox' do
+        other_inbox = create(:inbox)
+
+        get edit_inbox_path(other_inbox)
+
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -341,6 +378,71 @@ RSpec.describe 'Inboxes', type: :request do
           expect(response).to have_http_status(:unprocessable_content)
         end
       end
+
+      it 'does not update another user inbox' do
+        other_inbox = create(:inbox, name: 'Other inbox')
+
+        patch inbox_path(other_inbox), params: {
+          inbox: { name: 'Changed', payload_text: '{}', metadata_text: '{}' }
+        }
+
+        expect(response).to have_http_status(:not_found)
+        expect(other_inbox.reload.name).to eq('Other inbox')
+      end
+    end
+
+    describe 'bulk actions' do
+      it 'only archives inboxes owned by the signed-in user' do
+        owned_inbox = create(:inbox, user: user, archived: false)
+        other_inbox = create(:inbox, archived: false)
+
+        patch bulk_archive_inboxes_path, params: { inbox_ids: [ owned_inbox.id, other_inbox.id ] }
+
+        expect(owned_inbox.reload.archived).to be(true)
+        expect(other_inbox.reload.archived).to be(false)
+      end
+
+      it 'only processes inboxes owned by the signed-in user' do
+        workflow = create(:workflow)
+        owned_inbox = create(:inbox, user: user, processed: false)
+        other_inbox = create(:inbox, processed: false)
+
+        patch bulk_process_inboxes_path, params: {
+          inbox_ids: [ owned_inbox.id, other_inbox.id ],
+          inbox: { workflow_id: workflow.id }
+        }
+
+        expect(owned_inbox.reload).to be_processed
+        expect(owned_inbox.workflow).to eq(workflow)
+        expect(other_inbox.reload).not_to be_processed
+        expect(other_inbox.workflow).to be_nil
+      end
+
+      it 'only tags inboxes owned by the signed-in user' do
+        tag = create(:tag)
+        owned_inbox = create(:inbox, user: user, tag: nil)
+        other_inbox = create(:inbox, tag: nil)
+
+        patch bulk_tag_inboxes_path, params: {
+          inbox_ids: [ owned_inbox.id, other_inbox.id ],
+          inbox: { tag_id: tag.id }
+        }
+
+        expect(owned_inbox.reload.tag).to eq(tag)
+        expect(other_inbox.reload.tag).to be_nil
+      end
+
+      it 'only deletes inboxes owned by the signed-in user' do
+        owned_inbox = create(:inbox, user: user)
+        other_inbox = create(:inbox)
+
+        expect {
+          delete bulk_destroy_inboxes_path, params: { inbox_ids: [ owned_inbox.id, other_inbox.id ] }
+        }.to change(Inbox, :count).by(-1)
+
+        expect(Inbox.exists?(owned_inbox.id)).to be(false)
+        expect(Inbox.exists?(other_inbox.id)).to be(true)
+      end
     end
 
     describe 'DELETE /inboxes/:id' do
@@ -349,6 +451,13 @@ RSpec.describe 'Inboxes', type: :request do
         expect(response).to redirect_to(inboxes_path)
         follow_redirect!
         expect(response.body).to include('successfully deleted')
+      end
+
+      it 'does not destroy another user inbox' do
+        other_inbox = create(:inbox)
+
+        expect { delete inbox_path(other_inbox) }.not_to change(Inbox, :count)
+        expect(response).to have_http_status(:not_found)
       end
     end
   end

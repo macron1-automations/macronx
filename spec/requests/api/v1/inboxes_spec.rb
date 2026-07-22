@@ -4,6 +4,7 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
   let(:user) { create(:user) }
   let(:token) { user.api_token }
   let(:auth_headers) { { 'Authorization' => "Bearer #{token}" } }
+  let(:other_user) { create(:user) }
   let(:sample_file) { fixture_file_upload('sample.txt', 'text/plain') }
   let(:second_file) { fixture_file_upload('second.txt', 'text/plain') }
 
@@ -25,6 +26,7 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
       expect(body['attachments'].first['filename']).to eq('sample.txt')
       expect(body['attachments'].first['url']).to include('/rails/active_storage/blobs/')
       expect(Inbox.last.attachments).to be_attached
+      expect(Inbox.last.user).to eq(user)
     end
 
     it 'creates an inbox with multiple attachments at once' do
@@ -93,7 +95,7 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
   end
 
   describe 'GET /api/v1/inboxes/:id' do
-    let!(:inbox) { create(:inbox, source: 'api', summary: 'Test', body: 'Fetched body') }
+    let!(:inbox) { create(:inbox, user: user, source: 'api', summary: 'Test', body: 'Fetched body') }
 
     before do
       inbox.attachments.attach(
@@ -116,12 +118,30 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
       expect(body['attachments'].first['url']).to include('/rails/active_storage/blobs/')
       expect(body['body']).to eq('Fetched body')
     end
+
+    it 'returns not found for another user inbox' do
+      other_inbox = create(:inbox, user: other_user, source: 'api')
+
+      get api_v1_inbox_path(other_inbox), headers: auth_headers
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns not found for an unowned legacy inbox' do
+      legacy_inbox = create(:inbox, :unowned, source: 'api')
+
+      get api_v1_inbox_path(legacy_inbox), headers: auth_headers
+
+      expect(response).to have_http_status(:not_found)
+    end
   end
 
   describe 'GET /api/v1/inboxes' do
-    it 'includes body in list responses' do
-      create(:inbox, source: 'api', body: 'Listed body')
-      create(:inbox, source: 'api', body: nil)
+    it 'includes body in list responses for the token owner only' do
+      owned_inbox = create(:inbox, user: user, source: 'api', body: 'Listed body')
+      create(:inbox, user: user, source: 'api', body: nil)
+      other_inbox = create(:inbox, user: other_user, source: 'api', body: 'Other user body')
+      legacy_inbox = create(:inbox, :unowned, source: 'api', body: 'Legacy body')
 
       get api_v1_inboxes_path, headers: auth_headers
 
@@ -129,6 +149,8 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
       bodies = JSON.parse(response.body)
       expect(bodies).to all(have_key('body'))
       expect(bodies.find { |i| i['body'] == 'Listed body' }).to be_present
+      expect(bodies.map { |i| i['id'] }).to include(owned_inbox.id)
+      expect(bodies.map { |i| i['id'] }).not_to include(other_inbox.id, legacy_inbox.id)
     end
   end
 end
