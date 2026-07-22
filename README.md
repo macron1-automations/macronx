@@ -22,6 +22,8 @@ AI tools are most useful when they can receive context from the places where wor
 
 MacronX acts as the shared intake layer. It lets you capture raw input quickly, preserve structured context, attach files, and decide whether each item should be handled automatically or reviewed manually.
 
+MacronX is designed to stay cheap to run. The Rails app, development database, and file storage run on your machine while you iterate locally. Workflows are intended to call local LLMs (Ollama, LM Studio, mlx, and similar) wherever possible, reserving paid cloud APIs for cases that truly need them.
+
 ## Example workflows
 
 ### Meta glasses image capture
@@ -108,13 +110,29 @@ The API also supports:
 
 ## Local development
 
-Requirements:
+MacronX is meant to run entirely on your laptop. The web app, database, background jobs, and development file storage all use local services by default.
+
+### Requirements
 
 - Ruby 3.4.4
 - Rails 8.1
 - PostgreSQL
 
-Set up the app:
+Development uses the local `macron_x_development` database. The test suite uses a separate local `macron_x_test` database created automatically by Rails.
+
+### Database setup
+
+Prepare the local database:
+
+```sh
+bin/rails db:prepare
+```
+
+Seeds create `admin@example.com` with password `password` (development only).
+
+### App setup
+
+Install dependencies and prepare the database:
 
 ```sh
 bin/setup
@@ -132,7 +150,7 @@ The app runs at:
 http://localhost:3000
 ```
 
-`bin/setup` installs dependencies and prepares the database. `bin/dev` starts the local Rails development process through Foreman.
+`bin/setup` installs gems and runs `db:prepare`. `bin/dev` starts the Rails server and Tailwind CSS watcher through Foreman.
 
 ### Seed your tags
 
@@ -161,7 +179,7 @@ This repository is intended to be safe for public collaboration, but local and p
 Do not commit:
 
 - `config/master.key`
-- `.env*`
+- `.env`
 - production credentials
 - real API tokens
 - real provider keys or passwords
@@ -173,6 +191,6 @@ Keep `config/credentials.yml.enc` encrypted. If this repository was previously p
 - Email ingestion adapters for tools such as Meta glasses capture workflows.
 - Webhook adapters for iOS Shortcuts, browser tools, command-line tools, and external automation systems.
 - Automatic routing based on source, tag, payload, metadata, or attachment type.
-- LLM-powered workflow execution for research, triage, analysis, and transformation.
+- LLM-powered workflow execution via local models first (research, triage, analysis, transformation), with optional cloud fallbacks.
 - Downstream exports into task managers, notes apps, ticketing systems, or custom APIs.
 - Clear manual review queues for anything that cannot be processed confidently.
