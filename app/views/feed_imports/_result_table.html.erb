@@ -1,0 +1,35 @@
+<div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+  <div class="border-b border-gray-200 bg-gray-50 px-6 py-3">
+    <h2 class="text-sm font-semibold text-gray-700"><%= title %></h2>
+  </div>
+  <% if rows.any? %>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-white">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Row</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Title</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Category</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Feed URL</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500"><%= imported ? 'Category status' : 'Reason' %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% rows.each do |row| %>
+            <tr>
+              <td class="px-4 py-3 text-sm text-gray-500"><%= row['row'] %></td>
+              <td class="px-4 py-3 text-sm font-medium text-gray-900"><%= row['title'].presence || '—' %></td>
+              <td class="px-4 py-3 text-sm text-gray-500"><%= row['category'].presence || '—' %></td>
+              <td class="max-w-sm break-all px-4 py-3 text-sm text-gray-500"><%= row['feed_url'].presence || '—' %></td>
+              <td class="px-4 py-3 text-sm <%= imported ? 'text-gray-500' : 'text-red-700' %>">
+                <%= imported ? row['category_status'].humanize : row['reason'] %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="px-6 py-5 text-sm text-gray-500">None</p>
+  <% end %>
+</div>

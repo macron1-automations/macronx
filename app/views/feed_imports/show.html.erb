@@ -1,0 +1,44 @@
+<% if @feed_import.pending? || @feed_import.processing? %>
+  <% content_for :head do %>
+    <meta http-equiv="refresh" content="2">
+  <% end %>
+<% end %>
+
+<div class="mb-6 flex items-start justify-between">
+  <div>
+    <%= link_to '&larr; Feeds'.html_safe, feeds_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+    <h1 class="mt-3 text-2xl font-semibold text-gray-900">Feed Import Report</h1>
+    <p class="mt-1 text-sm text-gray-500"><%= @feed_import.source_filename %></p>
+  </div>
+  <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium <%= @feed_import.completed? ? 'bg-green-100 text-green-700' : @feed_import.failed? ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700' %>">
+    <%= @feed_import.status.humanize %>
+  </span>
+</div>
+
+<% if @feed_import.pending? || @feed_import.processing? %>
+  <div class="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+    <p class="text-sm font-medium text-gray-900">Validating and importing feeds…</p>
+    <p class="mt-1 text-sm text-gray-500">This page refreshes automatically every two seconds.</p>
+  </div>
+<% elsif @feed_import.failed? %>
+  <div class="rounded-lg border border-red-200 bg-red-50 p-6">
+    <h2 class="text-sm font-semibold text-red-800">Import failed</h2>
+    <p class="mt-2 text-sm text-red-700"><%= @feed_import.error_message %></p>
+  </div>
+<% else %>
+  <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="rounded-lg border border-green-200 bg-green-50 p-5">
+      <p class="text-sm font-medium text-green-700">Imported</p>
+      <p class="mt-1 text-3xl font-semibold text-green-900"><%= @feed_import.imported_count %></p>
+    </div>
+    <div class="rounded-lg border border-red-200 bg-red-50 p-5">
+      <p class="text-sm font-medium text-red-700">Unimported</p>
+      <p class="mt-1 text-3xl font-semibold text-red-900"><%= @feed_import.unimported_count %></p>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <%= render 'result_table', title: 'Imported feeds', rows: @feed_import.imported_rows, imported: true %>
+    <%= render 'result_table', title: 'Unimported feeds', rows: @feed_import.unimported_rows, imported: false %>
+  </div>
+<% end %>

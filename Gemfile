@@ -19,6 +19,10 @@ gem "tailwindcss-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
+# Parse RSS and Atom feeds during CSV import validation
+gem "csv", "~> 3.3"
+gem "rss", "~> 0.3"
+
 # API documentation
 gem "apipie-rails"
 

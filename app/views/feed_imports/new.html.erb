@@ -1,0 +1,37 @@
+<div class="mb-6">
+  <%= link_to '&larr; Feeds'.html_safe, feeds_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+  <h1 class="mt-3 text-2xl font-semibold text-gray-900">Import RSS Feeds</h1>
+  <p class="mt-1 text-sm text-gray-500">Upload a CSV and import feeds that contain at least one entry</p>
+</div>
+
+<div class="max-w-2xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+  <%= form_with model: @feed_import, html: { multipart: true }, class: "space-y-6" do |form| %>
+    <% if @feed_import.errors.any? %>
+      <div class="rounded-md border border-red-200 bg-red-50 p-4">
+        <ul class="list-disc space-y-1 pl-5 text-sm text-red-700">
+          <% @feed_import.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div>
+      <%= form.label :csv_file, "CSV file", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.file_field :csv_file, accept: ".csv,text/csv",
+            class: "block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200" %>
+      <p class="mt-2 text-xs text-gray-500">Required headers: <code>title</code>, <code>category</code>, and <code>feed_url</code>. Maximum 1 MB and 500 rows.</p>
+    </div>
+
+    <div class="rounded-md border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+      Each URL is fetched and must be valid RSS or Atom with at least one entry. Existing feed URLs and invalid rows are reported but not imported.
+    </div>
+
+    <div class="flex items-center justify-end gap-x-3">
+      <%= link_to 'Cancel', feeds_path,
+            class: "rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50" %>
+      <%= form.submit 'Import Feeds',
+            class: "rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 cursor-pointer" %>
+    </div>
+  <% end %>
+</div>
