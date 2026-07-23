@@ -29,6 +29,7 @@ RSpec.describe 'Feeds', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(feed.title, feed.feed_url, feed_category.name)
         expect(response.body).to include('href="/feeds"', 'href="/feed_categories"')
+        expect(response.body).to include('Import CSV', 'href="/feed_imports/new"')
       end
 
       it 'eager loads feed categories' do

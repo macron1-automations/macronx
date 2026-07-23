@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_010100) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_22_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,6 +47,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_010100) do
     t.string "name", null: false
     t.datetime "updated_at", null: false
     t.index "lower((name)::text)", name: "index_feed_categories_on_lower_name", unique: true
+  end
+
+  create_table "feed_imports", force: :cascade do |t|
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.jsonb "imported_rows", default: [], null: false
+    t.string "source_filename", null: false
+    t.datetime "started_at"
+    t.string "status", default: "pending", null: false
+    t.jsonb "unimported_rows", default: [], null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["status"], name: "index_feed_imports_on_status"
+    t.index ["user_id", "created_at"], name: "index_feed_imports_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_feed_imports_on_user_id"
   end
 
   create_table "feeds", force: :cascade do |t|
@@ -109,6 +125,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_010100) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "feed_imports", "users"
   add_foreign_key "feeds", "feed_categories"
   add_foreign_key "inboxes", "tags"
   add_foreign_key "inboxes", "users"

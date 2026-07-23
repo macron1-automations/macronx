@@ -5,6 +5,7 @@ class User < ApplicationRecord
   API_TOKEN_LENGTH = 24
 
   has_many :inboxes, dependent: :destroy
+  has_many :feed_imports, dependent: :destroy
 
   before_create :assign_api_token
 
