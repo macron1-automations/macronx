@@ -9,7 +9,6 @@ module NavigationHelper
   NAV_ITEMS = [
     { label: "Inbox",           path: :inboxes_path, icon: "inbox" },
     { label: "Feeds",           path: :feeds_path, icon: "rss" },
-    { label: "Feed Categories", path: :feed_categories_path, icon: "tag" },
     { label: "Analytics",       path: :root_path, icon: "chart-bar" },
     { label: "Reports",         path: :root_path, icon: "document-text" },
     { label: "Users",           path: :root_path, icon: "users" },

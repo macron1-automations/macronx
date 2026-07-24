@@ -23,13 +23,17 @@ RSpec.describe 'Feeds', type: :request do
     before { sign_in user }
 
     describe 'GET /feeds' do
-      it 'lists feeds with their categories and sidebar links' do
+      it 'lists feeds with their categories and feed management actions' do
         get feeds_path
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(feed.title, feed.feed_url, feed_category.name)
-        expect(response.body).to include('href="/feeds"', 'href="/feed_categories"')
+        expect(response.body).to include('href="/feeds"')
+        expect(response.body).to include('Manage Categories', 'href="/feed_categories"')
         expect(response.body).to include('Import CSV', 'href="/feed_imports/new"')
+
+        sidebar = Nokogiri::HTML(response.body).at_css('nav')
+        expect(sidebar.text).not_to include('Feed Categories')
       end
 
       it 'eager loads feed categories' do

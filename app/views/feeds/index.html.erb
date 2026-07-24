@@ -4,6 +4,8 @@
     <p class="mt-1 text-sm text-gray-500">Manage RSS feeds to process</p>
   </div>
   <div class="flex items-center gap-x-2">
+    <%= link_to 'Manage Categories', feed_categories_path,
+          class: "inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
     <%= link_to 'Import CSV', new_feed_import_path,
           class: "inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
     <%= link_to new_feed_path, class: "inline-flex items-center gap-x-1.5 rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors duration-150" do %>
