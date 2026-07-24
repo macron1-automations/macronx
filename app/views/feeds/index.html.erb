@@ -1,19 +1,48 @@
+<div data-controller="keyboard-shortcuts">
+<%= render 'shared/keyboard_shortcut_help',
+      title: 'Feed list',
+      shortcuts: [
+        { label: 'Manage Categories', key: 'c' },
+        { label: 'Import CSV', key: 'i' },
+        { label: 'New Feed', key: 'n' }
+      ] %>
+
 <div class="mb-6 flex items-start justify-between">
   <div>
     <h1 class="text-2xl font-semibold text-gray-900">Feeds</h1>
     <p class="mt-1 text-sm text-gray-500">Manage RSS feeds to process</p>
   </div>
   <div class="flex items-center gap-x-2">
-    <%= link_to 'Manage Categories', feed_categories_path,
-          class: "inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
-    <%= link_to 'Import CSV', new_feed_import_path,
-          class: "inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
-    <%= link_to new_feed_path, class: "inline-flex items-center gap-x-1.5 rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors duration-150" do %>
+    <%= link_to feed_categories_path,
+          title: "Manage Categories (c)",
+          data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "c" },
+          class: "inline-flex items-center gap-x-1.5 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" do %>
+      Manage Categories
+      <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">c</kbd>
+    <% end %>
+    <%= link_to new_feed_import_path,
+          title: "Import CSV (i)",
+          data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "i" },
+          class: "inline-flex items-center gap-x-1.5 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" do %>
+      Import CSV
+      <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">i</kbd>
+    <% end %>
+    <%= link_to new_feed_path,
+          title: "New Feed (n)",
+          data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "n" },
+          class: "inline-flex items-center gap-x-1.5 rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 transition-colors duration-150" do %>
       <svg class="-ml-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
         <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
       </svg>
       New Feed
+      <kbd class="ml-1 hidden rounded border border-white/20 bg-white/10 px-1 py-0.5 font-mono text-xs font-normal text-white/70 sm:inline">n</kbd>
     <% end %>
+    <button type="button"
+            title="Keyboard shortcuts (?)"
+            data-action="click->keyboard-shortcuts#toggleHelp"
+            class="inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-2 text-sm text-gray-500 shadow-sm hover:bg-gray-50 hover:text-gray-700 transition-colors duration-150 cursor-pointer">
+      <span class="inline-flex h-4 w-4 items-center justify-center font-semibold">?</span>
+    </button>
   </div>
 </div>
 
@@ -61,3 +90,4 @@
     <%= link_to 'New Feed', new_feed_path, class: "mt-6 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors duration-150" %>
   </div>
 <% end %>
+</div>

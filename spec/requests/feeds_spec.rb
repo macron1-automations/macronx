@@ -28,9 +28,19 @@ RSpec.describe 'Feeds', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(feed.title, feed.feed_url, feed_category.name)
+        expect(response.body).to include('data-controller="keyboard-shortcuts"')
         expect(response.body).to include('href="/feeds"')
         expect(response.body).to include('Manage Categories', 'href="/feed_categories"')
         expect(response.body).to include('Import CSV', 'href="/feed_imports/new"')
+        expect(response.body).to include(
+          'Manage Categories (c)',
+          'Import CSV (i)',
+          'New Feed (n)',
+          'data-keyboard-shortcuts-key="c"',
+          'data-keyboard-shortcuts-key="i"',
+          'data-keyboard-shortcuts-key="n"'
+        )
+        expect(response.body).to include('Keyboard Shortcuts', 'Feed list')
 
         sidebar = Nokogiri::HTML(response.body).at_css('nav')
         expect(sidebar.text).not_to include('Feed Categories')
@@ -49,6 +59,15 @@ RSpec.describe 'Feeds', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(feed.title, feed.feed_url, feed_category.name)
+        expect(response.body).to include('data-controller="keyboard-shortcuts"')
+        expect(response.body).to include('Back to Feeds (u)', 'Edit feed (e)', 'Delete feed (d)')
+        expect(response.body).to include(
+          'data-keyboard-shortcuts-key="u"',
+          'data-keyboard-shortcuts-key="e"',
+          'data-keyboard-shortcuts-key="d"'
+        )
+        expect(response.body).to include("Delete &quot;#{feed.title}&quot;? This cannot be undone.")
+        expect(response.body).to include('Keyboard Shortcuts', 'Feed view')
       end
     end
 
@@ -61,6 +80,10 @@ RSpec.describe 'Feeds', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body).to include('name="feed[feed_category_id]"')
         expect(response.body.index('Business')).to be < response.body.index('Technology')
+        expect(response.body).to include('data-controller="keyboard-shortcuts"')
+        expect(response.body).to include('Back to Feeds (u)', 'Create feed (Enter)')
+        expect(response.body).to include('data-keyboard-shortcuts-key="u"', 'data-keyboard-shortcuts-key="Enter"')
+        expect(response.body).to include('Keyboard Shortcuts', 'New feed')
       end
     end
 
@@ -100,6 +123,10 @@ RSpec.describe 'Feeds', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(feed.title, feed.feed_url, 'selected="selected"')
+        expect(response.body).to include('data-controller="keyboard-shortcuts"')
+        expect(response.body).to include('Back to Feeds (u)', 'Update feed (Enter)')
+        expect(response.body).to include('data-keyboard-shortcuts-key="u"', 'data-keyboard-shortcuts-key="Enter"')
+        expect(response.body).to include('Keyboard Shortcuts', 'Edit feed')
       end
     end
 

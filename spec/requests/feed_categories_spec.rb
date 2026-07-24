@@ -32,6 +32,16 @@ RSpec.describe 'Feed Categories', type: :request do
         expect(response.body).to match(%r{>\s*2\s*</span>})
       end
 
+      it 'shows feed navigation and category list shortcuts' do
+        get feed_categories_path
+
+        expect(response.body).to include('data-controller="keyboard-shortcuts"')
+        expect(response.body).to include('href="/feeds"', 'Back to Feeds (u)')
+        expect(response.body).to include('href="/feed_categories/new"', 'New Feed Category (n)')
+        expect(response.body).to include('data-keyboard-shortcuts-key="u"', 'data-keyboard-shortcuts-key="n"')
+        expect(response.body).to include('Keyboard Shortcuts', 'Category list')
+      end
+
       it 'orders categories by name' do
         create(:feed_category, name: 'Business')
 
@@ -51,6 +61,20 @@ RSpec.describe 'Feed Categories', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body.index(earlier_feed.title)).to be < response.body.index(later_feed.title)
       end
+
+      it 'shows category view shortcuts and preserves delete confirmation' do
+        get feed_category_path(feed_category)
+
+        expect(response.body).to include('data-controller="keyboard-shortcuts"')
+        expect(response.body).to include('Back to Feed Categories (u)', 'Edit category (e)', 'Delete category (d)')
+        expect(response.body).to include(
+          'data-keyboard-shortcuts-key="u"',
+          'data-keyboard-shortcuts-key="e"',
+          'data-keyboard-shortcuts-key="d"'
+        )
+        expect(response.body).to include("Delete &quot;#{feed_category.name}&quot;? This cannot be undone.")
+        expect(response.body).to include('Keyboard Shortcuts', 'Category view')
+      end
     end
 
     describe 'GET /feed_categories/new' do
@@ -59,6 +83,10 @@ RSpec.describe 'Feed Categories', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include('name="feed_category[name]"')
+        expect(response.body).to include('data-controller="keyboard-shortcuts"')
+        expect(response.body).to include('Back to Feed Categories (u)', 'Create category (Enter)')
+        expect(response.body).to include('data-keyboard-shortcuts-key="u"', 'data-keyboard-shortcuts-key="Enter"')
+        expect(response.body).to include('Keyboard Shortcuts', 'New category')
       end
     end
 
@@ -90,6 +118,10 @@ RSpec.describe 'Feed Categories', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(feed_category.name)
+        expect(response.body).to include('data-controller="keyboard-shortcuts"')
+        expect(response.body).to include('Back to Feed Categories (u)', 'Update category (Enter)')
+        expect(response.body).to include('data-keyboard-shortcuts-key="u"', 'data-keyboard-shortcuts-key="Enter"')
+        expect(response.body).to include('Keyboard Shortcuts', 'Edit category')
       end
     end
 

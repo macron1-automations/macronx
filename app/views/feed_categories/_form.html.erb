@@ -19,6 +19,12 @@
   <div class="flex items-center justify-end gap-x-3 pt-2">
     <%= link_to 'Cancel', feed_categories_path,
           class: "rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
-    <%= f.submit class: "rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors duration-150 cursor-pointer" %>
+    <%= f.button type: :submit,
+          title: "#{feed_category.persisted? ? 'Update' : 'Create'} category (Enter)",
+          data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "Enter" },
+          class: "inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors duration-150 cursor-pointer" do %>
+      <%= feed_category.persisted? ? 'Update Feed Category' : 'Create Feed Category' %>
+      <kbd class="rounded border border-white/20 bg-white/10 px-1 py-0.5 font-mono text-xs font-normal text-white/70">Enter</kbd>
+    <% end %>
   </div>
 <% end %>
