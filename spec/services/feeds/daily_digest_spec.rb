@@ -65,6 +65,8 @@ RSpec.describe Feeds::DailyDigest do
       expect(inbox.user).to eq(user)
       expect(inbox.source).to eq('feed-digest')
       expect(inbox.name).to include(date.to_date.iso8601)
+      expect(inbox.summary).to be_nil
+      expect(inbox.tag.name).to eq('news')
 
       payload = inbox.payload
       expect(payload).to have_key('Technology')
@@ -174,6 +176,20 @@ RSpec.describe Feeds::DailyDigest do
         { 'feed' => 'Bad Feed', 'url' => bad_feed.feed_url, 'error' => 'Feed returned HTTP 500' }
       ])
       expect(result.inbox.metadata['errors']).to eq(result.errors)
+    end
+
+    it 'creates the news tag when missing and reuses an existing one' do
+      category = create(:feed_category, name: 'Technology')
+      feed = create(:feed, title: 'Tech News', feed_category: category, user: user)
+      allow(fetcher).to receive(:fetch).with(feed.feed_url)
+        .and_return(build_rss([ { title: 'Post', link: 'https://example.com/a', description: 'x', published_at: date.midday } ]))
+
+      first = call_digest.inbox
+      expect(first.tag.name).to eq('news')
+
+      second = call_digest.inbox
+      expect(second.tag).to eq(first.tag)
+      expect(Tag.where(name: 'news').count).to eq(1)
     end
   end
 end
