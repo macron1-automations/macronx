@@ -6,6 +6,7 @@ module Feeds
 
     DEFAULT_ITEM_LIMIT = 10
     SUMMARY_LENGTH = 200
+    TAG_NAME = "news"
 
     def initialize(user:, fetcher: RssFetcher.new, item_limit: DEFAULT_ITEM_LIMIT, date: Time.current)
       @user = user
@@ -115,9 +116,7 @@ module Feeds
       user.inboxes.create!(
         name: "Daily feed digest — #{date.to_date.iso8601}",
         source: "feed-digest",
-        summary: "#{categories.size} categor#{categories.size == 1 ? 'y' : 'ies'}, " \
-                 "#{feeds_processed} feed#{feeds_processed == 1 ? '' : 's'}, " \
-                 "#{items_collected} article#{items_collected == 1 ? '' : 's'}",
+        tag: Tag.find_or_create_by!(name: TAG_NAME),
         payload: categories,
         metadata: {
           "run_at" => date.iso8601,
