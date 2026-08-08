@@ -20,6 +20,10 @@ RSpec.describe Feed, type: :model do
       expect(build(:feed, feed_category: nil)).not_to be_valid
     end
 
+    it 'is invalid without a user' do
+      expect(build(:feed, user: nil)).not_to be_valid
+    end
+
     it 'rejects duplicate feed URLs' do
       create(:feed, feed_url: 'https://example.com/feed.xml')
       duplicate = build(:feed, feed_url: 'https://example.com/feed.xml')

@@ -6,6 +6,7 @@ class User < ApplicationRecord
 
   has_many :inboxes, dependent: :destroy
   has_many :feed_imports, dependent: :destroy
+  has_many :feeds, dependent: :destroy
 
   before_create :assign_api_token
 

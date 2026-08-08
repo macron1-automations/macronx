@@ -6,7 +6,7 @@ class FeedImportJob < ApplicationJob
     return unless feed_import.pending?
 
     feed_import.update!(status: :processing, started_at: Time.current, error_message: nil)
-    result = Feeds::ImportFromCsv.new(feed_import.csv_file.download).call
+    result = Feeds::ImportFromCsv.new(feed_import.csv_file.download, user: feed_import.user).call
     feed_import.update!(
       status: :completed,
       imported_rows: result.imported,

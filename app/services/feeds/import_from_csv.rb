@@ -9,8 +9,9 @@ module Feeds
     REQUIRED_HEADERS = %w[title category feed_url].freeze
     MAX_ROWS = 500
 
-    def initialize(contents, validator: FeedContentValidator.new)
+    def initialize(contents, user:, validator: FeedContentValidator.new)
       @contents = contents
+      @user = user
       @validator = validator
     end
 
@@ -52,7 +53,7 @@ module Feeds
 
     private
 
-    attr_reader :contents, :validator
+    attr_reader :contents, :user, :validator
 
     def parsed_rows
       data = contents.to_s.dup.force_encoding(Encoding::UTF_8)
@@ -98,7 +99,8 @@ module Feeds
         feed = Feed.create!(
           title: attributes["title"],
           feed_url: attributes["feed_url"],
-          feed_category: category
+          feed_category: category,
+          user: user
         )
       end
 

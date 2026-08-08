@@ -3,7 +3,7 @@ class FeedsController < ApplicationController
   before_action :set_feed_categories, only: %i[new create edit update]
 
   def index
-    @feeds = Feed.includes(:feed_category).order(:title)
+    @feeds = current_user.feeds.includes(:feed_category).order(:title)
   end
 
   def show
@@ -14,7 +14,7 @@ class FeedsController < ApplicationController
   end
 
   def create
-    @feed = Feed.new(feed_params)
+    @feed = current_user.feeds.new(feed_params)
 
     if @feed.save
       redirect_to @feed, notice: "Feed was successfully created."
@@ -42,7 +42,7 @@ class FeedsController < ApplicationController
   private
 
   def set_feed
-    @feed = Feed.find(params[:id])
+    @feed = current_user.feeds.find(params[:id])
   end
 
   def set_feed_categories
