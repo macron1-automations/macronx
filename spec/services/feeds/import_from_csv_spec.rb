@@ -1,10 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Feeds::ImportFromCsv do
+  let(:user) { create(:user) }
   let(:validator) { instance_double(Feeds::FeedContentValidator, validate!: true) }
 
   def import(csv)
-    described_class.new(csv, validator: validator).call
+    described_class.new(csv, user: user, validator: validator).call
   end
 
   it 'imports valid rows and creates missing categories' do
@@ -13,6 +14,12 @@ RSpec.describe Feeds::ImportFromCsv do
     expect(result.imported.first).to include('title' => 'News', 'category_status' => 'created', 'row' => 2)
     expect(result.unimported).to be_empty
     expect(Feed.last.feed_category.name).to eq('Research')
+  end
+
+  it 'assigns imported feeds to the importing user' do
+    import("title,category,feed_url\nNews,Research,https://example.com/news.xml\n")
+
+    expect(Feed.last.user).to eq(user)
   end
 
   it 'reuses categories case-insensitively' do

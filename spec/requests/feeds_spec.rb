@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Feeds', type: :request do
   let(:user) { create(:user) }
   let(:feed_category) { create(:feed_category, name: 'Technology') }
-  let!(:feed) { create(:feed, title: 'Tech News', feed_url: 'https://example.com/tech.xml', feed_category: feed_category) }
+  let!(:feed) { create(:feed, title: 'Tech News', feed_url: 'https://example.com/tech.xml', feed_category: feed_category, user: user) }
 
   describe 'authentication' do
     it 'redirects unauthenticated users away from index' do
@@ -47,9 +47,16 @@ RSpec.describe 'Feeds', type: :request do
       end
 
       it 'eager loads feed categories' do
-        expect(Feed).to receive(:includes).with(:feed_category).and_call_original
+        category_queries = 0
+        subscriber = ActiveSupport::Notifications.subscribe('sql.active_record') do |_name, _start, _finish, _id, payload|
+          category_queries += 1 if payload[:sql].include?('FROM "feed_categories"')
+        end
 
         get feeds_path
+
+        expect(category_queries).to be <= 1
+      ensure
+        ActiveSupport::Notifications.unsubscribe(subscriber)
       end
     end
 

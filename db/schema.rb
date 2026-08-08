@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_020000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_08_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -71,8 +71,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_020000) do
     t.string "feed_url", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["feed_category_id"], name: "index_feeds_on_feed_category_id"
     t.index ["feed_url"], name: "index_feeds_on_feed_url", unique: true
+    t.index ["user_id"], name: "index_feeds_on_user_id"
   end
 
   create_table "inboxes", force: :cascade do |t|
@@ -127,6 +129,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_020000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "feed_imports", "users"
   add_foreign_key "feeds", "feed_categories"
+  add_foreign_key "feeds", "users"
   add_foreign_key "inboxes", "tags"
   add_foreign_key "inboxes", "users"
   add_foreign_key "inboxes", "workflows"

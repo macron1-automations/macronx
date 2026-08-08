@@ -3,5 +3,6 @@ FactoryBot.define do
     sequence(:title) { |n| "Feed #{n}" }
     sequence(:feed_url) { |n| "https://example.com/feeds/#{n}.xml" }
     feed_category
+    user
   end
 end
