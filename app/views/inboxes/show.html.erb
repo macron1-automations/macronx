@@ -168,7 +168,7 @@
       </div>
       <div class="grid grid-cols-3 gap-4 px-6 py-4">
         <dt class="text-sm font-medium text-gray-500">Body</dt>
-        <dd class="col-span-2 text-sm text-gray-900 whitespace-pre-wrap"><%= @inbox.body.presence || '—' %></dd>
+        <dd class="col-span-2 text-sm text-gray-900"><%= render_markdown(@inbox.body) || '—' %></dd>
       </div>
       <div class="grid grid-cols-3 gap-4 px-6 py-4">
         <dt class="text-sm font-medium text-gray-500">Created</dt>
