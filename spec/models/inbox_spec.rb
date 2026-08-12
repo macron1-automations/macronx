@@ -143,4 +143,34 @@ RSpec.describe Inbox, type: :model do
       expect(inbox.metadata).to eq({})
     end
   end
+
+  describe 'automatic workflow trigger', use_transactional_fixtures: false do
+    include ActiveJob::TestHelper
+
+    let!(:news_tag) { create(:tag, name: 'news') }
+    let!(:workflow) { create(:workflow, tag: news_tag) }
+
+    after do
+      Inbox.where(tag_id: news_tag.id).delete_all
+      workflow.destroy
+      news_tag.destroy
+    end
+
+    it 'enqueues the matching workflow job when a workflow exists for the tag' do
+      expect { create(:inbox, tag: news_tag) }.to have_enqueued_job(Workflows::RunJob)
+    end
+
+    it 'does not enqueue a job when no workflow matches the tag' do
+      other_tag = create(:tag)
+
+      expect { create(:inbox, tag: other_tag) }.not_to have_enqueued_job(Workflows::RunJob)
+    ensure
+      Inbox.where(tag_id: other_tag.id).delete_all
+      other_tag.destroy
+    end
+
+    it 'does not enqueue a job when the item has no tag' do
+      expect { create(:inbox, tag: nil) }.not_to have_enqueued_job(Workflows::RunJob)
+    end
+  end
 end

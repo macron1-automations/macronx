@@ -12,6 +12,7 @@ class WorkflowsController < ApplicationController
 
   def new
     @workflow = Workflow.new
+    @tags = Tag.order(:name)
   end
 
   def create
@@ -20,17 +21,20 @@ class WorkflowsController < ApplicationController
     if @workflow.save
       redirect_to @workflow, notice: "Workflow was successfully created."
     else
+      @tags = Tag.order(:name)
       render :new, status: :unprocessable_content
     end
   end
 
   def edit
+    @tags = Tag.order(:name)
   end
 
   def update
     if @workflow.update(workflow_params)
       redirect_to @workflow, notice: "Workflow was successfully updated."
     else
+      @tags = Tag.order(:name)
       render :edit, status: :unprocessable_content
     end
   end
@@ -47,6 +51,6 @@ class WorkflowsController < ApplicationController
   end
 
   def workflow_params
-    params.require(:workflow).permit(:name)
+    params.require(:workflow).permit(:name, :prompt, :tag_id)
   end
 end
