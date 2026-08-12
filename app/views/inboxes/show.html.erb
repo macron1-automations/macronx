@@ -167,10 +167,6 @@
         <dd class="col-span-2 text-sm text-gray-900"><%= @inbox.summary.presence || '—' %></dd>
       </div>
       <div class="grid grid-cols-3 gap-4 px-6 py-4">
-        <dt class="text-sm font-medium text-gray-500">Body</dt>
-        <dd class="col-span-2 text-sm text-gray-900 whitespace-pre-wrap"><%= @inbox.body.presence || '—' %></dd>
-      </div>
-      <div class="grid grid-cols-3 gap-4 px-6 py-4">
         <dt class="text-sm font-medium text-gray-500">Created</dt>
         <dd class="col-span-2 text-sm text-gray-900"><%= @inbox.created_at.strftime('%B %d, %Y at %H:%M UTC') %></dd>
       </div>
@@ -179,6 +175,16 @@
         <dd class="col-span-2 text-sm text-gray-900"><%= @inbox.updated_at.strftime('%B %d, %Y at %H:%M UTC') %></dd>
       </div>
     </dl>
+  </div>
+
+  <%# Body %>
+  <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div class="border-b border-gray-100 bg-gray-50 px-6 py-3">
+      <h2 class="text-sm font-semibold text-gray-700">Body</h2>
+    </div>
+    <div class="min-w-0 px-6 py-4">
+      <div class="prose prose-sm prose-slate max-w-none [overflow-wrap:anywhere] [&_pre]:overflow-x-auto [&_table]:block [&_table]:overflow-x-auto"><%= render_markdown(@inbox.body) || '<p class="text-gray-500">No body</p>' %></div>
+    </div>
   </div>
 
   <%# JSON fields side by side %>

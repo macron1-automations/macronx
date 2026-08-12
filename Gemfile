@@ -38,6 +38,9 @@ gem "avo"
 # Inline SVG rendering for icons
 gem "inline_svg"
 
+# Markdown rendering for inbox item bodies
+gem "redcarpet"
+
 # Unified AI provider framework used by workflows
 gem "ruby_llm"
 
