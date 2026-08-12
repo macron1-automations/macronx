@@ -1,9 +1,12 @@
+require "solid_queue_monitor"
+
 Rails.application.routes.draw do
   apipie
   devise_for :users
 
   authenticate :user, ->(u) { u.admin? } do
     mount Avo::Engine, at: "/avo"
+    mount SolidQueueMonitor::Engine, at: "/solid_queue"
   end
 
   resources :inboxes do

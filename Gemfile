@@ -55,6 +55,9 @@ gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
 
+# Web interface for monitoring Solid Queue background jobs
+gem "solid_queue_monitor", "~> 2.2"
+
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
