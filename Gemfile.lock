@@ -425,6 +425,9 @@ GEM
       fugit (~> 1.11)
       railties (>= 7.1)
       thor (>= 1.3.1)
+    solid_queue_monitor (2.2.1)
+      rails (>= 7.0)
+      solid_queue (>= 0.1.0)
     sshkit (1.25.1)
       base64
       logger
@@ -519,6 +522,7 @@ DEPENDENCIES
   solid_cable
   solid_cache
   solid_queue
+  solid_queue_monitor (~> 2.2)
   stimulus-rails
   tailwindcss-rails
   thruster
@@ -680,6 +684,7 @@ CHECKSUMS
   solid_cable (4.0.2) sha256=084636a67679ad00d23088b33c84047e614bcf41ee559db24b414d83cdc42d03
   solid_cache (1.0.10) sha256=bc05a2fb3ac78a6f43cbb5946679cf9db67dd30d22939ededc385cb93e120d41
   solid_queue (1.6.0) sha256=b5fc3bb34162e09d8f960df6400d0f9304dc80fe66c2cfface31c32b228de6a1
+  solid_queue_monitor (2.2.1) sha256=84e3ebc4cca0de9050b22bd92db6ecc0f563001c7f2fbd7815ddc0e843ebdbea
   sshkit (1.25.1) sha256=be3f10b9d6eb0b44d5eaba3f7cbe41bc6bb894bce4339688ac20124391455b78
   stimulus-rails (1.3.4) sha256=765676ffa1f33af64ce026d26b48e8ffb2e0b94e0f50e9119e11d6107d67cb06
   tailwindcss-rails (4.6.0) sha256=d99512867173d55c5ef8890427682299d8539f550cec1408b3d8667a538bd365
