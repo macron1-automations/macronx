@@ -13,6 +13,21 @@
 </div>
 
 <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+  <dl class="space-y-4">
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Trigger Tag</dt>
+      <dd class="mt-1 text-sm text-gray-900">
+        <%= @workflow.tag ? @workflow.tag.name : "—" %>
+      </dd>
+    </div>
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Prompt</dt>
+      <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap"><%= @workflow.prompt %></dd>
+    </div>
+  </dl>
+</div>
+
+<div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
   <h2 class="text-base font-medium text-gray-900 mb-4">
     Inbox Items
     <span class="ml-2 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700"><%= @inboxes.size %></span>

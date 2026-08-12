@@ -38,6 +38,9 @@ gem "avo"
 # Inline SVG rendering for icons
 gem "inline_svg"
 
+# Unified AI provider framework used by workflows
+gem "ruby_llm"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 

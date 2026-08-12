@@ -8,17 +8,12 @@ module NavigationHelper
   # To add a new item, append a hash here — no other changes required.
   NAV_ITEMS = [
     { label: "Inbox",           path: :inboxes_path, icon: "inbox" },
-    { label: "Feeds",           path: :feeds_path, icon: "rss" },
-    { label: "Analytics",       path: :root_path, icon: "chart-bar" },
-    { label: "Reports",         path: :root_path, icon: "document-text" },
-    { label: "Users",           path: :root_path, icon: "users" },
-    { label: "Billing",         path: :root_path, icon: "credit-card" },
-    { label: "Projects",        path: :root_path, icon: "folder" }
+    { label: "Feeds",           path: :feeds_path, icon: "chat-bubble-left-ellipsis" },
+    { label: "Workflows",       path: :workflows_path, icon: "tag" }
   ].freeze
 
   NAV_SETTINGS_ITEMS = [
-    { label: "Settings", path: :settings_api_token_path, icon: "cog-6-tooth" },
-    { label: "Feedback", path: :root_path, icon: "chat-bubble-left-ellipsis" }
+    { label: "Settings", path: :settings_api_token_path, icon: "cog-6-tooth" }
   ].freeze
 
   def navigation_items

@@ -18,6 +18,9 @@ Rails.application.configure do
   # Configure public file server for tests with cache-control for performance.
   config.public_file_server.headers = { "cache-control" => "public, max-age=3600" }
 
+  # Buffer jobs in memory so specs can assert on enqueues without a worker.
+  config.active_job.queue_adapter = :test
+
   # Show full error reports.
   config.consider_all_requests_local = true
   config.cache_store = :null_store

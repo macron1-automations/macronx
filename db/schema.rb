@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_08_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_12_003334) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -122,7 +122,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_08_000000) do
   create_table "workflows", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
+    t.text "prompt"
+    t.bigint "tag_id"
     t.datetime "updated_at", null: false
+    t.index ["tag_id"], name: "index_workflows_on_tag_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -133,4 +136,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_08_000000) do
   add_foreign_key "inboxes", "tags"
   add_foreign_key "inboxes", "users"
   add_foreign_key "inboxes", "workflows"
+  add_foreign_key "workflows", "tags"
 end
