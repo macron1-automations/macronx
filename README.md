@@ -234,6 +234,35 @@ http://localhost:3000
 
 `bin/setup` installs gems and runs `db:prepare`. `bin/dev` starts the Rails server and Tailwind CSS watcher through Foreman.
 
+### Exposing the app with ngrok
+
+To reach the local app from other devices (for example, iOS Shortcuts or webhook adapters), tunnel it with ngrok:
+
+```sh
+ngrok start dev
+```
+
+The tunnel is defined in `~/.config/ngrok/ngrok.yml` (on macOS: `/Users/<user>/Library/Application Support/ngrok/ngrok.yml`):
+
+```yaml
+version: "3"
+agent:
+  authtoken: <your-authtoken>
+tunnels:
+  dev:
+    proto: http
+    url: <your-domain>
+    addr: 3000
+```
+
+Create a static domain from the ngrok dashboard (https://dashboard.ngrok.com/domains), replace `url` in the config with it, and set it in `.env` so Rails allows the host:
+
+```sh
+NGROK_HOST=<your-domain>
+```
+
+If `NGROK_HOST` is set in `.env`, it is added to Rails' allowed hosts in `config/environments/development.rb`; restart the server after changing it.
+
 ### Seed your tags
 
 MacronX ships with a sample tag file at `config/tags.yml.example`. Copy it to `config/tags.yml`, edit the names and badge colors for your own workflow, then import it:
