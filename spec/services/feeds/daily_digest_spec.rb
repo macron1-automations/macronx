@@ -64,7 +64,7 @@ RSpec.describe Feeds::DailyDigest do
       inbox = result.inbox
       expect(inbox.user).to eq(user)
       expect(inbox.source).to eq('feed-digest')
-      expect(inbox.name).to include(date.to_date.iso8601)
+      expect(inbox.name).to eq('Daily Feed Digest')
       expect(inbox.summary).to be_nil
       expect(inbox.tag.name).to eq('news')
 

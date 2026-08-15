@@ -114,7 +114,7 @@ module Feeds
 
     def create_inbox(categories, errors, feeds_processed, items_collected)
       user.inboxes.create!(
-        name: "Daily feed digest — #{date.to_date.iso8601}",
+        name: "Daily Feed Digest",
         source: "feed-digest",
         tag: Tag.find_or_create_by!(name: TAG_NAME),
         payload: categories,

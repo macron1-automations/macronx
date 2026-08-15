@@ -69,7 +69,7 @@ For every feed, the job keeps at most the 10 most recent articles published toda
 The resulting inbox item:
 
 - `source`: `feed-digest`
-- `name`: `Daily feed digest — YYYY-MM-DD`
+- `name`: `Daily Feed Digest`
 - `summary`: a short count such as `3 categories, 5 feeds, 23 articles`
 - `payload`: keyed by category name, e.g.
 
