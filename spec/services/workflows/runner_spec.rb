@@ -60,6 +60,61 @@ RSpec.describe Workflows::Runner do
       expect(inbox.reload.body).to be_nil
     end
 
+    describe 'summary generation' do
+      it 'writes a short summary from a second LLM call' do
+        described_class.new(inbox).call
+
+        expect(inbox.reload.summary).to eq('A structured digest')
+      end
+
+      it 'uses the default summary prompt with the body interpolated' do
+        expected = Workflows::Runner::DEFAULT_SUMMARY_PROMPT.gsub('{{body}}', 'A structured digest')
+        expect(chat).to receive(:ask).with(expected).and_return(message)
+
+        described_class.new(inbox).call
+      end
+
+      it 'uses the workflow’s configured summary prompt' do
+        workflow.update!(summary_prompt: "Condense this for me:\n\n{{body}}")
+        expect(chat).to receive(:ask).with("Condense this for me:\n\nA structured digest").and_return(message)
+
+        described_class.new(inbox).call
+      end
+
+      it 'appends the body when the configured summary prompt has no {{body}} placeholder' do
+        workflow.update!(summary_prompt: 'Condense this for me:')
+        expect(chat).to receive(:ask).with("Condense this for me:\n\nA structured digest").and_return(message)
+
+        described_class.new(inbox).call
+      end
+
+      it 'clears summary_error in metadata on success' do
+        inbox.update!(metadata: { 'summary_error' => 'previous failure' })
+
+        described_class.new(inbox).call
+
+        expect(inbox.reload.metadata['summary_error']).to be_nil
+      end
+
+      it 'keeps the body and records an error when summary generation fails' do
+        calls = 0
+        allow(chat).to receive(:ask) do
+          calls += 1
+          raise RubyLLM::ConfigurationError, 'Summary failed' if calls == 2
+
+          message
+        end
+
+        expect { described_class.new(inbox).call }.not_to raise_error
+
+        inbox.reload
+        expect(inbox.body).to eq('A structured digest')
+        expect(inbox).to be_processed
+        expect(inbox.metadata['summary_error']).to eq('Summary failed')
+        expect(inbox.summary).to eq('A test inbox summary')
+      end
+    end
+
     context 'when the LLM call fails' do
       before do
         allow(chat).to receive(:ask).and_raise(RubyLLM::ConfigurationError, 'Missing configuration')

@@ -1,6 +1,13 @@
 module Workflows
   class Runner
     PLACEHOLDER = "{{payload}}"
+    BODY_PLACEHOLDER = "{{body}}"
+
+    DEFAULT_SUMMARY_PROMPT = <<~PROMPT
+      Write a short, plain-text summary of the text below so it can be read at a glance in an inbox list. Keep it to 1-2 sentences and at most ~150 characters. Do not use markdown, headings, lists, or quotes.
+
+      {{body}}
+    PROMPT
 
     Result = Data.define(:inbox, :response)
 
@@ -14,6 +21,7 @@ module Workflows
 
       response = RubyLLM.chat.ask(build_prompt(workflow.prompt, inbox.payload))
       inbox.update!(body: response.content, processed: true, workflow_id: workflow.id, metadata: success_metadata(response))
+      set_summary(workflow, response.content)
       Result.new(inbox: inbox, response: response)
     rescue StandardError => error
       inbox.update_column(:metadata, failure_metadata(error))
@@ -26,6 +34,21 @@ module Workflows
 
     def build_prompt(template, payload)
       template.gsub(PLACEHOLDER, payload.to_json)
+    end
+
+    def set_summary(workflow, body)
+      summary = RubyLLM.chat.ask(build_summary_prompt(workflow, body)).content.to_s.strip
+      inbox.update!(summary: summary.presence)
+      inbox.update_column(:metadata, (inbox.metadata || {}).merge("summary_error" => nil))
+    rescue StandardError => error
+      inbox.update_column(:metadata, (inbox.metadata || {}).merge("summary_error" => error.message))
+    end
+
+    def build_summary_prompt(workflow, body)
+      template = workflow.summary_prompt.presence || DEFAULT_SUMMARY_PROMPT
+      return template.gsub(BODY_PLACEHOLDER, body) if template.include?(BODY_PLACEHOLDER)
+
+      "#{template}\n\n#{body}"
     end
 
     def success_metadata(response)

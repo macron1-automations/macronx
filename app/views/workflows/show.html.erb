@@ -24,6 +24,10 @@
       <dt class="text-sm font-medium text-gray-500">Prompt</dt>
       <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap"><%= @workflow.prompt %></dd>
     </div>
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Summary Prompt</dt>
+      <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap"><%= @workflow.summary_prompt.presence || 'Using default summary prompt.' %></dd>
+    </div>
   </dl>
 </div>
 
