@@ -11,7 +11,7 @@ module Api
 
       api :GET, "/v1/inboxes", "List all inbox entries"
       def index
-        inboxes = @current_api_user.inboxes.with_attached_attachments.order(created_at: :desc)
+        inboxes = @current_api_user.inboxes.with_attached_attachments.includes(:tag).order(created_at: :desc)
         render json: inboxes.map { |i| serialize(i) }
       end
 
@@ -66,7 +66,7 @@ module Api
           source: inbox.source,
           summary: inbox.summary,
           body: inbox.body,
-          payload: inbox.payload,
+          tag: inbox.tag&.name,
           metadata: inbox.metadata,
           attachments: inbox.attachments.map { |attachment| serialize_attachment(attachment) },
           created_at: inbox.created_at,

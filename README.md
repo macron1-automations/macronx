@@ -69,7 +69,7 @@ For every feed, the job keeps at most the 10 most recent articles published toda
 The resulting inbox item:
 
 - `source`: `feed-digest`
-- `name`: `Daily feed digest — YYYY-MM-DD`
+- `name`: `Daily Feed Digest`
 - `summary`: a short count such as `3 categories, 5 feeds, 23 articles`
 - `payload`: keyed by category name, e.g.
 
@@ -189,6 +189,8 @@ The API also supports:
 - `GET /api/v1/inboxes`
 - `GET /api/v1/inboxes/:id`
 - `GET /api/v1/tags`
+
+List and detail responses include `id`, `name`, `source`, `summary`, `body`, `tag` (tag name), `metadata`, `attachments`, `created_at`, and `updated_at`. They do not include `payload`.
 
 ## Local development
 

@@ -25,6 +25,9 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
       expect(body['attachments'].size).to eq(1)
       expect(body['attachments'].first['filename']).to eq('sample.txt')
       expect(body['attachments'].first['url']).to include('/rails/active_storage/blobs/')
+      expect(body['source']).to eq('api')
+      expect(body['tag']).to be_nil
+      expect(body).not_to have_key('payload')
       expect(Inbox.last.attachments).to be_attached
       expect(Inbox.last.user).to eq(user)
     end
@@ -95,7 +98,8 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
   end
 
   describe 'GET /api/v1/inboxes/:id' do
-    let!(:inbox) { create(:inbox, user: user, source: 'api', summary: 'Test', body: 'Fetched body') }
+    let!(:tag) { create(:tag, name: 'Research') }
+    let!(:inbox) { create(:inbox, user: user, tag: tag, source: 'api', summary: 'Test', body: 'Fetched body') }
 
     before do
       inbox.attachments.attach(
@@ -117,6 +121,10 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
       )
       expect(body['attachments'].first['url']).to include('/rails/active_storage/blobs/')
       expect(body['body']).to eq('Fetched body')
+      expect(body['source']).to eq('api')
+      expect(body['summary']).to eq('Test')
+      expect(body['tag']).to eq('Research')
+      expect(body).not_to have_key('payload')
     end
 
     it 'returns not found for another user inbox' do
@@ -148,9 +156,26 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
       expect(response).to have_http_status(:ok)
       bodies = JSON.parse(response.body)
       expect(bodies).to all(have_key('body'))
+      expect(bodies).to all(have_key('source'))
+      expect(bodies).to all(have_key('summary'))
+      expect(bodies).to all(have_key('tag'))
+      expect(bodies).to all(have_key('metadata'))
+      expect(bodies.none? { |inbox| inbox.key?('payload') }).to be(true)
       expect(bodies.find { |i| i['body'] == 'Listed body' }).to be_present
       expect(bodies.map { |i| i['id'] }).to include(owned_inbox.id)
       expect(bodies.map { |i| i['id'] }).not_to include(other_inbox.id, legacy_inbox.id)
+    end
+
+    it 'returns the tag name and omits payload for a tagged inbox' do
+      tag = create(:tag, name: 'Research')
+      create(:inbox, user: user, source: 'api', tag: tag, summary: 'Tagged item')
+
+      get api_v1_inboxes_path, headers: auth_headers
+
+      bodies = JSON.parse(response.body)
+      expect(bodies.first['tag']).to eq('Research')
+      expect(bodies.first['source']).to eq('api')
+      expect(bodies.first['summary']).to eq('Tagged item')
     end
   end
 end
