@@ -1,5 +1,6 @@
 class Tag < ApplicationRecord
   has_many :inboxes, dependent: :nullify
+  has_many :workflows, dependent: :nullify
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
 

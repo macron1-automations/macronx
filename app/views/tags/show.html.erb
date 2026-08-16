@@ -1,0 +1,70 @@
+<div class="mb-6 flex items-start justify-between">
+  <div class="flex items-center gap-x-3">
+    <h1 class="text-2xl font-semibold text-gray-900"><%= @tag.name %></h1>
+    <span class="inline-flex items-center rounded-full <%= @tag.badge_classes %> px-2.5 py-0.5 text-xs font-medium">
+      <%= @tag.name %>
+    </span>
+  </div>
+  <div class="flex items-center gap-x-2">
+    <%= link_to 'Edit', edit_tag_path(@tag),
+          class: "inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
+    <%= button_to 'Delete', @tag, method: :delete,
+          data: { turbo_confirm: "Delete \"#{@tag.name}\"? This cannot be undone." },
+          class: "inline-flex items-center rounded-md border border-red-300 bg-white px-3 py-2 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 transition-colors duration-150" %>
+  </div>
+</div>
+
+<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+  <dl class="space-y-4">
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Color</dt>
+      <dd class="mt-1">
+        <span class="inline-flex items-center rounded-full <%= @tag.badge_classes %> px-2.5 py-0.5 text-xs font-medium">
+          <%= @tag.color.presence || "Default" %>
+        </span>
+      </dd>
+    </div>
+    <div>
+      <dt class="text-sm font-medium text-gray-500">Created</dt>
+      <dd class="mt-1 text-sm text-gray-900"><%= @tag.created_at.strftime('%B %d, %Y') %></dd>
+    </div>
+  </dl>
+</div>
+
+<div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+  <h2 class="text-base font-medium text-gray-900 mb-4">
+    Inbox Items
+    <span class="ml-2 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700"><%= @inboxes.size %></span>
+  </h2>
+  <% if @inboxes.any? %>
+    <ul class="divide-y divide-gray-100">
+      <% @inboxes.each do |inbox| %>
+        <li class="py-3 flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-900"><%= inbox.name %></span>
+          <%= link_to 'View', inbox, class: "text-sm text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-sm text-gray-500">No inbox items with this tag yet.</p>
+  <% end %>
+</div>
+
+<div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+  <h2 class="text-base font-medium text-gray-900 mb-4">
+    Workflows
+    <span class="ml-2 inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700"><%= @workflows.size %></span>
+  </h2>
+  <% if @workflows.any? %>
+    <ul class="divide-y divide-gray-100">
+      <% @workflows.each do |workflow| %>
+        <li class="py-3 flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-900"><%= workflow.name %></span>
+          <%= link_to 'View', workflow, class: "text-sm text-indigo-600 hover:text-indigo-900 transition-colors duration-150" %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-sm text-gray-500">No workflows triggered by this tag.</p>
+  <% end %>
+</div>
