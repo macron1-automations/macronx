@@ -55,5 +55,25 @@ RSpec.describe Tag, type: :model do
       create(:inbox, tag: tag)
       expect { tag.destroy }.not_to change(Inbox, :count)
     end
+
+    it 'nullifies workflow tag_id when the tag is destroyed' do
+      tag = create(:tag)
+      workflow = create(:workflow, tag: tag)
+      tag.destroy
+      expect(workflow.reload.tag_id).to be_nil
+    end
+
+    it 'does not destroy associated workflows when the tag is destroyed' do
+      tag = create(:tag)
+      create(:workflow, tag: tag)
+      expect { tag.destroy }.not_to change(Workflow, :count)
+    end
+  end
+
+  describe 'TAG_COLOR_OPTIONS' do
+    it 'includes at least one preset' do
+      expect(TagsHelper::TAG_COLOR_OPTIONS).to be_an(Array)
+      expect(TagsHelper::TAG_COLOR_OPTIONS.length).to be >= 1
+    end
   end
 end

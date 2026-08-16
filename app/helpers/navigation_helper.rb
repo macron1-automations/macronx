@@ -9,7 +9,8 @@ module NavigationHelper
   NAV_ITEMS = [
     { label: "Inbox",           path: :inboxes_path, icon: "inbox" },
     { label: "Feeds",           path: :feeds_path, icon: "chat-bubble-left-ellipsis" },
-    { label: "Workflows",       path: :workflows_path, icon: "tag" }
+    { label: "Workflows",       path: :workflows_path, icon: "chart-bar" },
+    { label: "Tags",            path: :tags_path, icon: "tag" }
   ].freeze
 
   NAV_SETTINGS_ITEMS = [

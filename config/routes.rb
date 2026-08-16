@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   end
 
   resources :workflows
+  resources :tags
   resources :feeds
   resources :feed_categories
   resources :feed_imports, only: %i[new create show]
