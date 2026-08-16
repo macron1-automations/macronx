@@ -3,8 +3,6 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["checkbox", "selectAll", "actionButton"]
   static values = {
-    processModalUrl: String,
-    tagModalUrl: String,
     archiveUrl: String,
     unarchiveUrl: String,
     destroyUrl: String
@@ -40,32 +38,6 @@ export default class extends Controller {
     return this.checkboxTargets
       .filter(cb => cb.checked)
       .map(cb => cb.value)
-  }
-
-  openBulkProcess() {
-    const ids = this.selectedIds
-    if (ids.length === 0) return
-
-    const params = new URLSearchParams()
-    ids.forEach(id => params.append("inbox_ids[]", id))
-
-    const frame = document.querySelector("turbo-frame#modal")
-    if (frame) {
-      frame.src = `${this.processModalUrlValue}?${params.toString()}`
-    }
-  }
-
-  openBulkTag() {
-    const ids = this.selectedIds
-    if (ids.length === 0) return
-
-    const params = new URLSearchParams()
-    ids.forEach(id => params.append("inbox_ids[]", id))
-
-    const frame = document.querySelector("turbo-frame#modal")
-    if (frame) {
-      frame.src = `${this.tagModalUrlValue}?${params.toString()}`
-    }
   }
 
   bulkUnarchive() {

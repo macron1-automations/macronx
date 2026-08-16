@@ -11,21 +11,13 @@ Rails.application.routes.draw do
 
   resources :inboxes do
     collection do
-      get :bulk_process_modal
-      patch :bulk_process
       patch :bulk_archive
       patch :bulk_unarchive
       delete :bulk_destroy
-      get :bulk_tag_modal
-      patch :bulk_tag
     end
     member do
-      get  :process, action: :process_modal
-      patch :process, action: :mark_processed
       patch :archive
       patch :unarchive
-      get :tag, action: :tag_modal
-      patch :tag, action: :mark_tagged
     end
   end
 
