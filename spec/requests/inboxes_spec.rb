@@ -402,36 +402,6 @@ RSpec.describe 'Inboxes', type: :request do
         expect(other_inbox.reload.archived).to be(false)
       end
 
-      it 'only processes inboxes owned by the signed-in user' do
-        workflow = create(:workflow)
-        owned_inbox = create(:inbox, user: user, processed: false)
-        other_inbox = create(:inbox, processed: false)
-
-        patch bulk_process_inboxes_path, params: {
-          inbox_ids: [ owned_inbox.id, other_inbox.id ],
-          inbox: { workflow_id: workflow.id }
-        }
-
-        expect(owned_inbox.reload).to be_processed
-        expect(owned_inbox.workflow).to eq(workflow)
-        expect(other_inbox.reload).not_to be_processed
-        expect(other_inbox.workflow).to be_nil
-      end
-
-      it 'only tags inboxes owned by the signed-in user' do
-        tag = create(:tag)
-        owned_inbox = create(:inbox, user: user, tag: nil)
-        other_inbox = create(:inbox, tag: nil)
-
-        patch bulk_tag_inboxes_path, params: {
-          inbox_ids: [ owned_inbox.id, other_inbox.id ],
-          inbox: { tag_id: tag.id }
-        }
-
-        expect(owned_inbox.reload.tag).to eq(tag)
-        expect(other_inbox.reload.tag).to be_nil
-      end
-
       it 'only deletes inboxes owned by the signed-in user' do
         owned_inbox = create(:inbox, user: user)
         other_inbox = create(:inbox)

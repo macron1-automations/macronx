@@ -19,16 +19,6 @@
         <span class="text-sm text-gray-700">Edit</span>
         <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">e</kbd>
       </li>
-      <% unless @inbox.processed? || @inbox.archived? %>
-      <li class="flex items-center justify-between py-2.5">
-        <span class="text-sm text-gray-700">Process</span>
-        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">p</kbd>
-      </li>
-      <% end %>
-      <li class="flex items-center justify-between py-2.5">
-        <span class="text-sm text-gray-700">Tag</span>
-        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">t</kbd>
-      </li>
       <li class="flex items-center justify-between py-2.5">
         <span class="text-sm text-gray-700"><%= @inbox.archived? ? 'Unarchive' : 'Archive' %></span>
         <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">a</kbd>
@@ -66,24 +56,6 @@
     <h1 class="text-2xl font-semibold text-gray-900"><%= @inbox.name.presence || '(untitled)' %></h1>
   </div>
   <div class="flex items-center gap-x-2">
-    <% unless @inbox.processed? || @inbox.archived? %>
-      <%= link_to process_inbox_path(@inbox),
-            title: "Process (p)",
-            data: { turbo_frame: 'modal', keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "p" },
-            class: "inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-150" do %>
-        Process
-        <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">p</kbd>
-      <% end %>
-    <% end %>
-
-    <%= link_to tag_inbox_path(@inbox),
-          title: "Tag (t)",
-          data: { turbo_frame: 'modal', keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "t" },
-          class: "inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors duration-150" do %>
-      Tag
-      <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">t</kbd>
-    <% end %>
-
     <% if @inbox.archived? %>
       <%= button_to unarchive_inbox_path(@inbox), method: :patch,
             title: "Unarchive (a)",

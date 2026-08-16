@@ -23,10 +23,6 @@
         <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">n</kbd>
       </li>
       <li class="flex items-center justify-between py-2.5">
-        <span class="text-sm text-gray-700">Process selected</span>
-        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">p</kbd>
-      </li>
-      <li class="flex items-center justify-between py-2.5">
         <span class="text-sm text-gray-700">Archive selected</span>
         <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">a</kbd>
       </li>
@@ -97,8 +93,6 @@
 </div>
 
 <div data-controller="bulk-actions list-navigation"
-     data-bulk-actions-process-modal-url-value="<%= bulk_process_modal_inboxes_path %>"
-     data-bulk-actions-tag-modal-url-value="<%= bulk_tag_modal_inboxes_path %>"
      data-bulk-actions-archive-url-value="<%= bulk_archive_inboxes_path %>"
      data-bulk-actions-unarchive-url-value="<%= bulk_unarchive_inboxes_path %>"
      data-bulk-actions-destroy-url-value="<%= bulk_destroy_inboxes_path %>">
