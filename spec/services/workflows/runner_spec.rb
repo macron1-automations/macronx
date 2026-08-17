@@ -115,6 +115,40 @@ RSpec.describe Workflows::Runner do
       end
     end
 
+    context 'with include_attachments enabled' do
+      before { workflow.update!(include_attachments: true) }
+
+      it 'passes attachments to the LLM when present' do
+        file = fixture_file_upload('spec/fixtures/files/sample.txt', 'text/plain')
+        inbox.attachments.attach(file)
+
+        expect(chat).to receive(:ask).with(
+          instance_of(String),
+          with: instance_of(ActiveStorage::Attached::Many)
+        ).and_return(message)
+
+        described_class.new(inbox).call
+      end
+
+      it 'does not pass with: when inbox has no attachments' do
+        expect(chat).to receive(:ask).with(instance_of(String)).and_return(message)
+
+        described_class.new(inbox).call
+      end
+    end
+
+    context 'with include_attachments disabled' do
+      it 'does not pass attachments even when present' do
+        workflow.update!(include_attachments: false)
+        file = fixture_file_upload('spec/fixtures/files/sample.txt', 'text/plain')
+        inbox.attachments.attach(file)
+
+        expect(chat).to receive(:ask).with(instance_of(String)).and_return(message)
+
+        described_class.new(inbox).call
+      end
+    end
+
     context 'when the LLM call fails' do
       before do
         allow(chat).to receive(:ask).and_raise(RubyLLM::ConfigurationError, 'Missing configuration')

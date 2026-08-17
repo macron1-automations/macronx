@@ -19,7 +19,7 @@ module Workflows
       workflow = Workflow.find_by(tag_id: inbox.tag_id)
       return Result.new(inbox: inbox, response: nil) if workflow.nil?
 
-      response = RubyLLM.chat.ask(build_prompt(workflow.prompt, inbox.payload))
+      response = RubyLLM.chat.ask(build_prompt(workflow.prompt, inbox.payload), **attachment_args(workflow))
       inbox.update!(body: response.content, processed: true, workflow_id: workflow.id, metadata: success_metadata(response))
       set_summary(workflow, response.content)
       Result.new(inbox: inbox, response: response)
@@ -34,6 +34,12 @@ module Workflows
 
     def build_prompt(template, payload)
       template.gsub(PLACEHOLDER, payload.to_json)
+    end
+
+    def attachment_args(workflow)
+      return {} unless workflow.include_attachments? && inbox.attachments.any?
+
+      { with: inbox.attachments }
     end
 
     def set_summary(workflow, body)

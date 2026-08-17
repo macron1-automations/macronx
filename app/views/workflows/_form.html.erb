@@ -38,6 +38,14 @@
     <p class="mt-1 text-xs text-gray-500">Leave blank to use the default summary prompt. Use <code>{{body}}</code> to insert the generated body.</p>
   </div>
 
+  <div>
+    <label class="flex items-center gap-x-2">
+      <%= f.check_box :include_attachments, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+      <span class="text-sm font-medium text-gray-700">Include inbox attachments in prompt</span>
+    </label>
+    <p class="mt-1 text-xs text-gray-500">When enabled, any files attached to the inbox item are sent to the model alongside the text prompt.</p>
+  </div>
+
   <div class="flex items-center justify-end gap-x-3 pt-2">
     <%= link_to 'Cancel', workflows_path,
           class: "rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150" %>
