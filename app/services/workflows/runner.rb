@@ -2,6 +2,7 @@ module Workflows
   class Runner
     PLACEHOLDER = "{{payload}}"
     BODY_PLACEHOLDER = "{{body}}"
+    AUDIO_TRANSCRIPT_PLACEHOLDER = "{{audio_transcript}}"
 
     DEFAULT_SUMMARY_PROMPT = <<~PROMPT
       Write a short, plain-text summary of the text below so it can be read at a glance in an inbox list. Keep it to 1-2 sentences and at most ~150 characters. Do not use markdown, headings, lists, or quotes.
@@ -33,13 +34,22 @@ module Workflows
     attr_reader :inbox
 
     def build_prompt(template, payload)
-      template.gsub(PLACEHOLDER, payload.to_json)
+      result = template.gsub(PLACEHOLDER, payload.to_json)
+      result = result.gsub(AUDIO_TRANSCRIPT_PLACEHOLDER, body_content) if result.include?(AUDIO_TRANSCRIPT_PLACEHOLDER)
+      result
+    end
+
+    def body_content
+      inbox.metadata&.dig("audio_transcript").to_s
     end
 
     def attachment_args(workflow)
       return {} unless workflow.include_attachments? && inbox.attachments.any?
 
-      { with: inbox.attachments }
+      attachments = inbox.attachments
+      attachments = attachments.reject { |a| a.content_type&.start_with?("audio/") } if inbox.metadata&.key?("audio_transcript")
+
+      { with: attachments }
     end
 
     def set_summary(workflow, body)

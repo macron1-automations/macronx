@@ -27,7 +27,7 @@
     <%= f.text_area :prompt, rows: 6,
           class: "block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500",
           placeholder: "e.g. You are a news analyst. Analyze the following payload:\n\n{{payload}}" %>
-    <p class="mt-1 text-xs text-gray-500">Use <code>{{payload}}</code> to insert the inbox item's payload.</p>
+    <p class="mt-1 text-xs text-gray-500">Use <code>{{payload}}</code> to insert the inbox item's payload. Use <code>{{audio_transcript}}</code> to insert an audio transcription (auto-generated for audio attachments).</p>
   </div>
 
   <div>
