@@ -173,4 +173,34 @@ RSpec.describe Inbox, type: :model do
       expect { create(:inbox, tag: nil) }.not_to have_enqueued_job(Audio::ConvertM4aToMp3Job)
     end
   end
+
+  describe 'automatic image conversion trigger', use_transactional_fixtures: false do
+    include ActiveJob::TestHelper
+
+    let!(:img_tag) { create(:tag, name: 'photos') }
+    let!(:workflow) { create(:workflow, tag: img_tag) }
+
+    after do
+      Inbox.where(tag_id: img_tag.id).delete_all
+      workflow.destroy
+      img_tag.destroy
+    end
+
+    it 'enqueues the image conversion job when a workflow exists for the tag' do
+      expect { create(:inbox, tag: img_tag) }.to have_enqueued_job(Image::ConvertHeicToJpegJob)
+    end
+
+    it 'does not enqueue a job when no workflow matches the tag' do
+      other_tag = create(:tag)
+
+      expect { create(:inbox, tag: other_tag) }.not_to have_enqueued_job(Image::ConvertHeicToJpegJob)
+    ensure
+      Inbox.where(tag_id: other_tag.id).delete_all
+      other_tag.destroy
+    end
+
+    it 'does not enqueue a job when the item has no tag' do
+      expect { create(:inbox, tag: nil) }.not_to have_enqueued_job(Image::ConvertHeicToJpegJob)
+    end
+  end
 end
