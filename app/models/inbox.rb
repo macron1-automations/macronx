@@ -9,7 +9,7 @@ class Inbox < ApplicationRecord
 
   before_validation :set_default_name
   before_validation :parse_json_fields
-  after_create_commit :enqueue_matching_workflow
+  after_create_commit :enqueue_audio_conversion
 
   validates :workflow_id, presence: true, if: :processed?
 
@@ -19,11 +19,11 @@ class Inbox < ApplicationRecord
 
   private
 
-  def enqueue_matching_workflow
+  def enqueue_audio_conversion
     return if tag.blank?
     return unless Workflow.exists?(tag_id: tag_id)
 
-    Workflows::RunJob.perform_later(id)
+    Audio::ConvertM4aToMp3Job.perform_later(id)
   end
 
   # TODO: replace with LLM-generated name derived from payload/summary

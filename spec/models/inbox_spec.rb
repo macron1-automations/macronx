@@ -144,7 +144,7 @@ RSpec.describe Inbox, type: :model do
     end
   end
 
-  describe 'automatic workflow trigger', use_transactional_fixtures: false do
+  describe 'automatic audio conversion trigger', use_transactional_fixtures: false do
     include ActiveJob::TestHelper
 
     let!(:news_tag) { create(:tag, name: 'news') }
@@ -156,21 +156,21 @@ RSpec.describe Inbox, type: :model do
       news_tag.destroy
     end
 
-    it 'enqueues the matching workflow job when a workflow exists for the tag' do
-      expect { create(:inbox, tag: news_tag) }.to have_enqueued_job(Workflows::RunJob)
+    it 'enqueues the audio conversion job when a workflow exists for the tag' do
+      expect { create(:inbox, tag: news_tag) }.to have_enqueued_job(Audio::ConvertM4aToMp3Job)
     end
 
     it 'does not enqueue a job when no workflow matches the tag' do
       other_tag = create(:tag)
 
-      expect { create(:inbox, tag: other_tag) }.not_to have_enqueued_job(Workflows::RunJob)
+      expect { create(:inbox, tag: other_tag) }.not_to have_enqueued_job(Audio::ConvertM4aToMp3Job)
     ensure
       Inbox.where(tag_id: other_tag.id).delete_all
       other_tag.destroy
     end
 
     it 'does not enqueue a job when the item has no tag' do
-      expect { create(:inbox, tag: nil) }.not_to have_enqueued_job(Workflows::RunJob)
+      expect { create(:inbox, tag: nil) }.not_to have_enqueued_job(Audio::ConvertM4aToMp3Job)
     end
   end
 end

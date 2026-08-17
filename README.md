@@ -118,6 +118,65 @@ Inspect the latest digest:
 bin/rails runner 'puts Inbox.where(source: "feed-digest").last&.payload'
 ```
 
+## Audio transcription
+
+When an inbox item is created with an audio attachment (m4a, mp3, wav, etc.), the system automatically:
+
+1. **Converts** the audio to mp3 using ffmpeg (for m4a files).
+2. **Transcribes** the audio to text using OpenAI Whisper via `ruby_llm`.
+3. **Stores** the transcript in `metadata["audio_transcript"]`.
+
+The transcript is then available for workflows via the `{{audio_transcript}}` tag in the prompt template.
+
+### Workflow prompt example
+
+```text
+Analyze the following audio transcription:
+
+{{audio_transcript}}
+```
+
+When the workflow runs, `{{audio_transcript}}` is replaced with the transcribed text. Audio attachments are automatically excluded from the LLM request to avoid errors with models that don't support audio input.
+
+### How it works
+
+The `Audio::ConvertM4aToMp3Job` handles the conversion and transcription pipeline:
+
+- Runs after an inbox item with audio is created via the API.
+- Converts m4a to mp3 (ffmpeg).
+- Transcribes the audio to text (`RubyLLM.transcribe` using `whisper-1` by default).
+- Stores the transcript in `metadata["audio_transcript"]`.
+- Enqueues the workflow job.
+
+The `Workflows::Runner` then:
+
+- Builds the prompt using the workflow template, replacing `{{audio_transcript}}` with the stored transcript.
+- Excludes audio attachments from the LLM request when a transcript exists.
+- Sends only the text prompt to the LLM.
+
+### Supported audio formats
+
+- m4a (audio/mp4, audio/x-m4a, audio/m4a)
+- mp3 (audio/mpeg)
+- wav, webm, ogg (any audio format supported by Whisper)
+
+### Transcription models
+
+The default transcription model is `whisper-1`. Other available models:
+
+- `whisper-1` — default, good for general use
+- `gpt-4o-transcribe` — faster, better for technical content
+- `gpt-4o-mini-transcribe` — fastest, lowest cost
+- `gpt-4o-transcribe-diarize` — identifies different speakers
+
+Configure the default in `config/initializers/ruby_llm.rb`:
+
+```ruby
+RubyLLM.configure do |config|
+  config.default_transcription_model = "gpt-4o-transcribe"
+end
+```
+
 ## Reprocessing workflow items
 
 If you change a workflow's prompt (or your LLM setup) and want to re-run it on items that were already processed, you can re-process the most recent ones. This re-runs each item's tag workflow with the item's `payload` and overwrites the item's `body` and workflow metadata.
