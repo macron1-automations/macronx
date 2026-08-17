@@ -124,7 +124,7 @@ RSpec.describe Workflows::Runner do
 
         expect(chat).to receive(:ask).with(
           instance_of(String),
-          with: instance_of(ActiveStorage::Attached::Many)
+          with: instance_of(Array)
         ).and_return(message)
 
         described_class.new(inbox).call
