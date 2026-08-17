@@ -51,6 +51,6 @@ class WorkflowsController < ApplicationController
   end
 
   def workflow_params
-    params.require(:workflow).permit(:name, :prompt, :summary_prompt, :tag_id)
+    params.require(:workflow).permit(:name, :prompt, :summary_prompt, :tag_id, :include_attachments)
   end
 end
