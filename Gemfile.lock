@@ -84,7 +84,7 @@ GEM
       actionpack (>= 5.0)
       activesupport (>= 5.0)
     ast (2.4.3)
-    avo (4.1.10)
+    avo (4.1.11)
       actionview (>= 6.1)
       active_link_to
       activerecord (>= 6.1)
@@ -547,7 +547,7 @@ CHECKSUMS
   addressable (2.9.0) sha256=7fdf6ac3660f7f4e867a0838be3f6cf722ace541dd97767fa42bc6cfa980c7af
   apipie-rails (1.5.1) sha256=727c2a74d913cd0cb601d3675800672b7b5a6b0c61349805c0582431a12f2f45
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
-  avo (4.1.10) sha256=4182cab640978901f526be2019af5cbbb3f98b38d179690f1ba1dbe2590d4c3b
+  avo (4.1.11) sha256=29f0465392a1c6c311ef3b4f07338c232887ad0c8379cdb1b91453dbe21d8aa6
   avo-icons (0.2.1) sha256=1ceb00725ca6149f754ac9d8651398be03d67ceb6bd22eab98a5394d10210e10
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   bcrypt (3.1.22) sha256=1f0072e88c2d705d94aff7f2c5cb02eb3f1ec4b8368671e19112527489f29032
