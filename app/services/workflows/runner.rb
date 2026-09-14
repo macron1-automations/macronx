@@ -44,7 +44,6 @@ module Workflows
     end
 
     SUPPORTED_IMAGE_TYPES = %w[image/png image/jpeg image/gif image/webp].freeze
-    OPENAI_SUPPORTED_IMAGE_TYPES = SUPPORTED_IMAGE_TYPES
 
     def attachment_args(workflow)
       return {} unless workflow.include_attachments? && inbox.attachments.any?
