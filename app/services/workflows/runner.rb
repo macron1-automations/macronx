@@ -3,6 +3,7 @@ module Workflows
     PLACEHOLDER = "{{payload}}"
     BODY_PLACEHOLDER = "{{body}}"
     AUDIO_TRANSCRIPT_PLACEHOLDER = "{{audio_transcript}}"
+    SUPPORTED_IMAGE_TYPES = %w[image/png image/jpeg image/gif image/webp].freeze
 
     DEFAULT_SUMMARY_PROMPT = <<~PROMPT
       Write a short, plain-text summary of the text below so it can be read at a glance in an inbox list. Keep it to 1-2 sentences and at most ~150 characters. Do not use markdown, headings, lists, or quotes.
@@ -35,15 +36,13 @@ module Workflows
 
     def build_prompt(template, payload)
       result = template.gsub(PLACEHOLDER, payload.to_json)
-      result = result.gsub(AUDIO_TRANSCRIPT_PLACEHOLDER, body_content) if result.include?(AUDIO_TRANSCRIPT_PLACEHOLDER)
+      result = result.gsub(AUDIO_TRANSCRIPT_PLACEHOLDER, audio_transcript_content) if result.include?(AUDIO_TRANSCRIPT_PLACEHOLDER)
       result
     end
 
-    def body_content
+    def audio_transcript_content
       inbox.metadata&.dig("audio_transcript").to_s
     end
-
-    SUPPORTED_IMAGE_TYPES = %w[image/png image/jpeg image/gif image/webp].freeze
 
     def attachment_args(workflow)
       return {} unless workflow.include_attachments? && inbox.attachments.any?
