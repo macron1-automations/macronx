@@ -43,14 +43,15 @@ module Workflows
       inbox.metadata&.dig("audio_transcript").to_s
     end
 
-    OPENAI_SUPPORTED_IMAGE_TYPES = %w[image/png image/jpeg image/gif image/webp].freeze
+    SUPPORTED_IMAGE_TYPES = %w[image/png image/jpeg image/gif image/webp].freeze
+    OPENAI_SUPPORTED_IMAGE_TYPES = SUPPORTED_IMAGE_TYPES
 
     def attachment_args(workflow)
       return {} unless workflow.include_attachments? && inbox.attachments.any?
 
       attachments = inbox.attachments
       attachments = attachments.reject { |a| a.content_type&.start_with?("audio/") } if inbox.metadata&.key?("audio_transcript")
-      attachments = attachments.reject { |a| a.content_type&.start_with?("image/") && !OPENAI_SUPPORTED_IMAGE_TYPES.include?(a.content_type) }
+      attachments = attachments.reject { |a| a.content_type&.start_with?("image/") && !SUPPORTED_IMAGE_TYPES.include?(a.content_type) }
 
       { with: attachments }
     end
