@@ -177,6 +177,18 @@ RubyLLM.configure do |config|
 end
 ```
 
+## LLM configuration
+
+The application uses **Ollama** for workflow execution and summary generation, and **OpenAI** for audio transcription:
+
+- **Workflows & Summaries**: Uses Ollama with `Qwen3.6-35B-A3B-FP8` by default.
+  - `OLLAMA_API_BASE` (default: `http://localhost:1913/v1`, configure in `.env` for custom hosts, e.g. `http://100.95.26.48:1919/v1`)
+  - `OLLAMA_MODEL` (default: `Qwen3.6-35B-A3B-FP8`)
+- **Audio Transcription**: Uses OpenAI Whisper (`whisper-1`) by default.
+  - `OPENAI_API_KEY`
+- **Model Registry**: Model capabilities and providers are registered in `config/models.json`.
+- **Request Timeout**: Configured to 1800s (30 minutes) by default, overridable via `LLM_REQUEST_TIMEOUT`.
+
 ## Reprocessing workflow items
 
 If you change a workflow's prompt (or your LLM setup) and want to re-run it on items that were already processed, you can re-process the most recent ones. This re-runs each item's tag workflow with the item's `payload` and overwrites the item's `body` and workflow metadata.
