@@ -140,13 +140,15 @@ When the workflow runs, `{{audio_transcript}}` is replaced with the transcribed 
 
 ### How it works
 
-The `Audio::ConvertM4aToMp3Job` handles the conversion and transcription pipeline:
+The `Inboxes::ProcessJob` coordinates attachment preprocessing before running workflows:
 
-- Runs after an inbox item with audio is created via the API.
-- Converts m4a to mp3 (ffmpeg).
-- Transcribes the audio to text (`RubyLLM.transcribe` using `whisper-1` by default).
-- Stores the transcript in `metadata["audio_transcript"]`.
-- Enqueues the workflow job.
+- Runs after an inbox item is created with a matching workflow tag.
+- Preprocesses audio via `Audio::ConvertM4aToMp3Job`:
+  - Converts m4a to mp3 (ffmpeg).
+  - Transcribes the audio to text (`RubyLLM.transcribe` using `whisper-1` by default).
+  - Stores the transcript in `metadata["audio_transcript"]`.
+- Preprocesses images via `Image::ConvertHeicToJpegJob` (converts HEIC/HEIF to JPEG).
+- Enqueues `Workflows::RunJob` once all preprocessing completes.
 
 The `Workflows::Runner` then:
 

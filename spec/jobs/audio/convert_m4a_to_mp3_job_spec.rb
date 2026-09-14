@@ -36,13 +36,6 @@ RSpec.describe Audio::ConvertM4aToMp3Job, type: :job do
         expect(inbox.attachments.first.filename.to_s).to eq('voice.mp3')
       end
 
-      it 'enqueues the workflow job after conversion' do
-        allow_any_instance_of(described_class).to receive(:system).and_return(true)
-
-        described_class.perform_now(inbox.id)
-
-        expect(Workflows::RunJob).to have_been_enqueued
-      end
 
       it 'transcribes audio and stores transcript in metadata' do
         allow_any_instance_of(described_class).to receive(:system).and_return(true)
@@ -138,27 +131,13 @@ RSpec.describe Audio::ConvertM4aToMp3Job, type: :job do
         expect(inbox.attachments.count).to eq(1)
         expect(inbox.attachments.first.filename.to_s).to eq('notes.txt')
       end
-
-      it 'enqueues the workflow job' do
-        described_class.perform_now(inbox.id)
-
-        expect(Workflows::RunJob).to have_been_enqueued
-      end
     end
 
     context 'with no attachments' do
-      it 'does not enqueue the workflow job when no tag' do
+      it 'returns without error' do
         untagged = create(:inbox, tag: nil)
 
-        described_class.perform_now(untagged.id)
-
-        expect(Workflows::RunJob).not_to have_been_enqueued
-      end
-
-      it 'enqueues the workflow job when tag and workflow exist' do
-        described_class.perform_now(inbox.id)
-
-        expect(Workflows::RunJob).to have_been_enqueued
+        expect { described_class.perform_now(untagged.id) }.not_to raise_error
       end
     end
 
@@ -167,18 +146,6 @@ RSpec.describe Audio::ConvertM4aToMp3Job, type: :job do
         expect {
           described_class.perform_now(0)
         }.not_to raise_error
-      end
-    end
-
-    context 'when tag has no matching workflow' do
-      let(:inbox_no_workflow) { create(:inbox, tag: tag) }
-
-      before { workflow.destroy! }
-
-      it 'does not enqueue workflow job' do
-        described_class.perform_now(inbox_no_workflow.id)
-
-        expect(Workflows::RunJob).not_to have_been_enqueued
       end
     end
   end

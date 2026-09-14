@@ -14,7 +14,6 @@ module Image
       return if inbox.nil?
 
       convert_heic_attachments(inbox)
-      enqueue_workflow(inbox)
     end
 
     private
@@ -63,13 +62,6 @@ module Image
 
     def heic?(attachment)
       HEIC_CONTENT_TYPES.include?(attachment.content_type)
-    end
-
-    def enqueue_workflow(inbox)
-      return if inbox.tag.blank?
-      return unless Workflow.exists?(tag_id: inbox.tag_id)
-
-      Workflows::RunJob.perform_later(inbox.id)
     end
   end
 end

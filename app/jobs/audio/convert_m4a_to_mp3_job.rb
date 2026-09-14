@@ -14,7 +14,6 @@ module Audio
 
       convert_m4a_attachments(inbox)
       transcribe_audio(inbox)
-      enqueue_workflow(inbox)
     end
 
     private
@@ -84,13 +83,6 @@ module Audio
 
     def m4a?(attachment)
       M4A_CONTENT_TYPES.include?(attachment.content_type)
-    end
-
-    def enqueue_workflow(inbox)
-      return if inbox.tag.blank?
-      return unless Workflow.exists?(tag_id: inbox.tag_id)
-
-      Workflows::RunJob.perform_later(inbox.id)
     end
   end
 end
