@@ -1,5 +1,5 @@
 module Inboxes
-  class PreprocessJob < ApplicationJob
+  class ProcessJob < ApplicationJob
     queue_as :default
 
     def perform(inbox_id)

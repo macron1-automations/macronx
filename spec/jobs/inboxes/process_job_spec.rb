@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Inboxes::PreprocessJob, type: :job do
+RSpec.describe Inboxes::ProcessJob, type: :job do
   include ActiveJob::TestHelper
 
   let!(:tag) { create(:tag, name: 'research') }

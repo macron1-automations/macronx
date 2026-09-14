@@ -140,7 +140,7 @@ When the workflow runs, `{{audio_transcript}}` is replaced with the transcribed 
 
 ### How it works
 
-The `Inboxes::PreprocessJob` coordinates attachment preprocessing before running workflows:
+The `Inboxes::ProcessJob` coordinates attachment preprocessing before running workflows:
 
 - Runs after an inbox item is created with a matching workflow tag.
 - Preprocesses audio via `Audio::ConvertM4aToMp3Job`:

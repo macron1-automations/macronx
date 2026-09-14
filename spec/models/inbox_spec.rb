@@ -144,7 +144,7 @@ RSpec.describe Inbox, type: :model do
     end
   end
 
-  describe 'automatic preprocessing trigger', use_transactional_fixtures: false do
+  describe 'automatic processing trigger', use_transactional_fixtures: false do
     include ActiveJob::TestHelper
 
     let!(:news_tag) { create(:tag, name: 'news') }
@@ -156,21 +156,21 @@ RSpec.describe Inbox, type: :model do
       news_tag.destroy
     end
 
-    it 'enqueues the preprocessing job when a workflow exists for the tag' do
-      expect { create(:inbox, tag: news_tag) }.to have_enqueued_job(Inboxes::PreprocessJob)
+    it 'enqueues the processing job when a workflow exists for the tag' do
+      expect { create(:inbox, tag: news_tag) }.to have_enqueued_job(Inboxes::ProcessJob)
     end
 
     it 'does not enqueue a job when no workflow matches the tag' do
       other_tag = create(:tag)
 
-      expect { create(:inbox, tag: other_tag) }.not_to have_enqueued_job(Inboxes::PreprocessJob)
+      expect { create(:inbox, tag: other_tag) }.not_to have_enqueued_job(Inboxes::ProcessJob)
     ensure
       Inbox.where(tag_id: other_tag.id).delete_all
       other_tag.destroy
     end
 
     it 'does not enqueue a job when the item has no tag' do
-      expect { create(:inbox, tag: nil) }.not_to have_enqueued_job(Inboxes::PreprocessJob)
+      expect { create(:inbox, tag: nil) }.not_to have_enqueued_job(Inboxes::ProcessJob)
     end
   end
 end
