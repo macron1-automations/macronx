@@ -60557,5 +60557,27 @@
       "function_calling",
       "structured_output"
     ]
+  },
+  {
+    "id": "qwen3.6:27b",
+    "name": "Qwen3.6 27B",
+    "provider": "ollama",
+    "family": "qwen",
+    "context_window": 262144,
+    "max_output_tokens": 16384,
+    "modalities": {
+      "input": [
+        "text",
+        "image"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "vision",
+      "function_calling",
+      "structured_output"
+    ]
   }
 ]
