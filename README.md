@@ -171,23 +171,24 @@ The default transcription model is `whisper-1`. Other available models:
 - `gpt-4o-mini-transcribe` — fastest, lowest cost
 - `gpt-4o-transcribe-diarize` — identifies different speakers
 
-Configure the default in `config/initializers/ruby_llm.rb`:
+Configure the default model in `.env` via `WHISPER_MODEL` (or in `config/initializers/ruby_llm.rb`):
 
-```ruby
-RubyLLM.configure do |config|
-  config.default_transcription_model = "gpt-4o-transcribe"
-end
+```bash
+WHISPER_MODEL=whisper-1
 ```
 
-## LLM configuration
+## LLM & Transcription configuration
 
-The application uses **Ollama** for workflow execution and summary generation, and **OpenAI** for audio transcription:
+The application uses **Ollama** for workflow execution and summary generation, and a **Whisper** (self-hosted or OpenAI) service for audio transcription:
 
 - **Workflows & Summaries**: Uses Ollama with `Qwen3.6-35B-A3B-FP8` by default.
   - `OLLAMA_API_BASE` (default: `http://localhost:1913/v1`, configure in `.env` for custom hosts, e.g. `http://100.95.26.48:1919/v1`)
   - `OLLAMA_MODEL` (default: `Qwen3.6-35B-A3B-FP8`)
-- **Audio Transcription**: Uses OpenAI Whisper (`whisper-1`) by default.
-  - `OPENAI_API_KEY`
+- **Audio Transcription**: Uses a Whisper speech-to-text service (defaults to self-hosted or OpenAI Whisper).
+  - `WHISPER_API_BASE`: Base URL for the Whisper service (e.g. `http://100.96.219.81:9000`). Falls back to `OPENAI_API_BASE` or `https://api.openai.com/v1`.
+  - `WHISPER_API_KEY`: API key / token for the Whisper endpoint. Falls back to `OPENAI_API_KEY`.
+  - `WHISPER_MODEL`: Model identifier (default: `whisper-1`).
+  - `OPENAI_API_KEY`: Fallback API key if `WHISPER_API_KEY` is not set.
 - **Model Registry**: Model capabilities and providers are registered in `config/models.json`.
 - **Request Timeout**: Configured to 1800s (30 minutes) by default, overridable via `LLM_REQUEST_TIMEOUT`.
 
