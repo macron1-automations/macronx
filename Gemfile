@@ -25,7 +25,7 @@ gem "rss", "~> 0.3"
 
 # ActiveSupport::JSON.decode in Rails 8.1 passes options positionally, which
 # json 3.x rejects on Ruby 3.4. Keep json on 2.x until Rails supports json 3.
-gem "json", "~> 2.0"
+gem "json", "~> 3.0"
 
 # API documentation
 gem "apipie-rails"
