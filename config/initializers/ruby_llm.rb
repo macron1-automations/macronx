@@ -7,8 +7,15 @@ RubyLLM.configure do |config|
   config.default_model = ENV.fetch("OLLAMA_MODEL", "Qwen3.6-35B-A3B-FP8")
   config.ollama_api_key = ENV["OLLAMA_API_KEY"] if ENV["OLLAMA_API_KEY"].present?
 
-  config.openai_api_key = ENV["OPENAI_API_KEY"]
-  config.default_transcription_model = "whisper-1"
+  # Transcription configuration (self-hosted Whisper or OpenAI)
+  whisper_base = ENV["WHISPER_API_BASE"].presence || ENV["OPENAI_API_BASE"].presence
+  if whisper_base.present?
+    whisper_base = "#{whisper_base.chomp('/')}/v1" unless whisper_base.end_with?("/v1")
+    config.openai_api_base = whisper_base
+  end
+
+  config.openai_api_key = ENV["WHISPER_API_KEY"].presence || ENV["OPENAI_API_KEY"]
+  config.default_transcription_model = ENV.fetch("WHISPER_MODEL", "whisper-1")
 
   config.request_timeout = ENV.fetch("LLM_REQUEST_TIMEOUT", 1800).to_i
   config.logger = Rails.logger

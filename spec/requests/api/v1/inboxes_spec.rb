@@ -160,6 +160,8 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
       expect(bodies).to all(have_key('summary'))
       expect(bodies).to all(have_key('tag'))
       expect(bodies).to all(have_key('metadata'))
+      expect(bodies).to all(have_key('processed'))
+      expect(bodies).to all(have_key('archived'))
       expect(bodies.none? { |inbox| inbox.key?('payload') }).to be(true)
       expect(bodies.find { |i| i['body'] == 'Listed body' }).to be_present
       expect(bodies.map { |i| i['id'] }).to include(owned_inbox.id)
@@ -176,6 +178,24 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
       expect(bodies.first['tag']).to eq('Research')
       expect(bodies.first['source']).to eq('api')
       expect(bodies.first['summary']).to eq('Tagged item')
+    end
+
+    it 'returns processed and archived state' do
+      processed = create(:inbox, user: user, source: 'api')
+      archived = create(:inbox, user: user, source: 'api')
+      processed.update_columns(processed: true, archived: false)
+      archived.update_columns(archived: true)
+
+      get api_v1_inboxes_path, headers: auth_headers
+
+      bodies = JSON.parse(response.body)
+      processed_body = bodies.find { |i| i['id'] == processed.id }
+      archived_body = bodies.find { |i| i['id'] == archived.id }
+      expect(processed_body['processed']).to be(true)
+      expect(processed_body['archived']).to be(false)
+      expect(archived_body['archived']).to be(true)
+      expect(bodies).to all(have_key('processed'))
+      expect(bodies).to all(have_key('archived'))
     end
   end
 end

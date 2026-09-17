@@ -70,6 +70,8 @@ module Api
           tag: inbox.tag&.name,
           metadata: inbox.metadata,
           attachments: inbox.attachments.map { |attachment| serialize_attachment(attachment) },
+          processed: inbox.processed,
+          archived: inbox.archived,
           created_at: inbox.created_at,
           updated_at: inbox.updated_at
         }
