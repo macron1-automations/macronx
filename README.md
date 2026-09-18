@@ -1,26 +1,26 @@
 # MacronX
 
-MacronX is a personal Open-Source Intelligence (OSINT) intake and analysis pipeline. It provides a single inbox where signals from devices, open-source feeds, social media scrapers, and APIs can land before being processed manually or routed into automated intelligence workflows.
+MacronX is a personal Open-Source Intelligence (OSINT) intake and analysis pipeline. It acts like an automated team of analysts: signals from devices, open-source feeds, social media scrapers, and APIs land in a single inbox, are automatically processed by LLM workflows, and then queued for your review via the web interface or `macronx-tui`.
 
-The app is built around a simple idea: capture first, analyze later. If an intelligence artifact can be processed automatically by source, tag, or workflow, it moves through the system to generate insights. If it requires human review, it stays in the inbox.
+The app is built around a simple idea: **capture -> process with AI -> analyze**. Most intelligence artifacts are designed to be automatically processed by workflows as they arrive. You simply review the generated insights—such as Executive Intelligence Briefs, trend analyses, or parsed transcripts—and then archive them.
 
 ## What it is
 
-MacronX is a Rails application for collecting and organizing intelligence artifacts. It gives you authenticated inbox items with sources, tags, attachments, structured payloads, metadata, workflow assignment, processed state, and archive state.
+MacronX is a Rails application for collecting and processing intelligence artifacts at scale. It gives you authenticated inbox items with sources, tags, attachments, structured payloads, metadata, workflow assignment, processed state, and archive state.
 
-Use it as the integration point between raw data collection and downstream analysis or reporting systems:
+Use it as the integration point between raw data collection and human analysis:
 
 ```text
-Raw Signal -> API/webhook adapter -> inbox item -> tag/source routing -> LLM analysis/manual review -> Final Intelligence Report
+Raw Signal -> API/webhook adapter -> inbox item -> automated LLM workflow -> analyst review (TUI/Web) -> archive
 ```
 
-Today, MacronX provides the inbox, workflow, tagging, attachment, filtering, and API ingestion primitives. LLM-powered intelligence workflows are built on top of those primitives.
+Today, MacronX provides the inbox, workflow, tagging, attachment, filtering, and API ingestion primitives. LLM-powered intelligence workflows are built on top of those primitives to automatically synthesize raw data.
 
 ## Why it exists
 
 OSINT operations are most effective when analysts can rapidly collect context from multiple sources: news feeds, social media, intercepted audio, field imagery, and research notes. Without a common intake point, these artifacts become scattered across disconnected tools.
 
-MacronX acts as the shared intelligence intake layer. It lets you capture raw signals quickly, preserve structured context, attach media files, and decide whether each artifact should be analyzed automatically (e.g., generating an Executive Intelligence Brief) or reviewed manually.
+MacronX acts as the shared intelligence intake layer. It lets you capture raw signals quickly, preserve structured context, and automatically route them to LLMs for synthesis. Instead of spending time manually parsing raw data, you spend your time reading the generated reports and making strategic decisions.
 
 MacronX is designed to stay secure and cheap to run. The Rails app, development database, and file storage run locally on your machine, ensuring sensitive intelligence stays private. Workflows are intended to call local LLMs (Ollama, LM Studio, mlx, and similar) wherever possible, reserving paid cloud APIs for cases that truly need them.
 
