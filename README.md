@@ -69,7 +69,7 @@ A GPU-friendly Rust TUI is available for keyboard-driven work with MacronX. Buil
 - Markdown body rendering with word-wrapping
 - Keyboard-driven inbox listing, filtering by tag, and detail inspection
 
-Get it at [macron1-automations/macronx-tui](https://github.com/macron1-automations/macronx-tui). Requires `cargo run` with a running MacronX API and `MACRONX_API_TOKEN` set.
+Get it at [macron1-automations/macronx-tui](https://github.com/macron1-automations/macronx-tui).
 
 ## Daily feed digest
 
