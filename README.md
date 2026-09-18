@@ -71,23 +71,10 @@ A GPU-friendly Rust TUI is available for keyboard-driven work with MacronX. Buil
 
 Get it at [macron1-automations/macronx-tui](https://github.com/macron1-automations/macronx-tui).
 
-## Daily feed digest
+## Documentation
 
-Please see [RSS_FEEDS.md](docs/RSS_FEEDS.md) for details on the daily feed digest, schedule, and how to run it manually.
-
-## Audio transcription
-
-Please see [AUDIO_TRANSCRIPTS.md](docs/AUDIO_TRANSCRIPTS.md) for details on supported audio formats, automatic transcription workflows, and prompt examples.
-
-
-## Setup & Configuration
-
-Please see [SETUP.md](docs/SETUP.md) for detailed instructions on local development, LLM configuration, database setup, ngrok tunneling, and security notes.
-
-## Reprocessing workflow items
-
-Please see [MAINTENANCE.md](docs/MAINTENANCE.md) for details on reprocessing existing items through updated workflows.
-
-## API ingestion
-
-Please see [API.md](docs/API.md) for details on API ingestion, endpoints, and authentication.
+- **[Setup & Configuration](docs/SETUP.md)**: Detailed instructions on local development, LLM configuration, database setup, ngrok tunneling, and security notes.
+- **[Daily RSS Feed digest](docs/RSS_FEEDS.md)**: Details on the daily feed digest, schedule, and how to run it manually.
+- **[Audio transcription](docs/AUDIO_TRANSCRIPTS.md)**: Details on supported audio formats, automatic transcription workflows, and prompt examples.
+- **[Maintenance](docs/MAINTENANCE.md)**: Details on routine maintenance tasks, including reprocessing existing items through updated workflows.
+- **[API ingestion](docs/API.md)**: Details on API ingestion, endpoints, and authentication.
