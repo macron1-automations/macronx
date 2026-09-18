@@ -396,5 +396,3 @@ Do not commit:
 - production credentials
 - real API tokens
 - real provider keys or passwords
-
-Keep `config/credentials.yml.enc` encrypted. If this repository was previously private and used for a real deployment, rotate the Rails credentials and any connected service tokens before publishing it publicly.
