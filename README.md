@@ -1,48 +1,64 @@
 # MacronX
 
-MacronX is EDC for your AI tools: a personal workflow inbox where signals from devices, shortcuts, webhooks, and APIs can land in one place before being processed manually or routed into workflows.
+MacronX is a personal Open-Source Intelligence (OSINT) intake and analysis pipeline. It provides a single inbox where signals from devices, open-source feeds, social media scrapers, and APIs can land before being processed manually or routed into automated intelligence workflows.
 
-The app is built around a simple idea: capture first, decide later. If an item can be processed automatically by source, tag, or workflow, it should move through the system. If it cannot, it stays in the inbox for human review.
+The app is built around a simple idea: capture first, analyze later. If an intelligence artifact can be processed automatically by source, tag, or workflow, it moves through the system to generate insights. If it requires human review, it stays in the inbox.
 
 ## What it is
 
-MacronX is a Rails application for collecting and organizing AI workflow inputs. It gives you authenticated inbox items with sources, tags, attachments, structured payloads, metadata, workflow assignment, processed state, and archive state.
+MacronX is a Rails application for collecting and organizing intelligence artifacts. It gives you authenticated inbox items with sources, tags, attachments, structured payloads, metadata, workflow assignment, processed state, and archive state.
 
-Use it as the integration point between capture tools and downstream AI or productivity systems:
+Use it as the integration point between raw data collection and downstream analysis or reporting systems:
 
 ```text
-Capture source -> API/webhook adapter -> inbox item -> tag/source routing -> workflow/manual review -> downstream system
+Raw Signal -> API/webhook adapter -> inbox item -> tag/source routing -> LLM analysis/manual review -> Final Intelligence Report
 ```
 
-Today, MacronX provides the inbox, workflow, tagging, attachment, filtering, and API ingestion primitives. LLM-powered workflows are built on top of those primitives.
+Today, MacronX provides the inbox, workflow, tagging, attachment, filtering, and API ingestion primitives. LLM-powered intelligence workflows are built on top of those primitives.
 
 ## Why it exists
 
-AI tools are most useful when they can receive context from the places where work actually happens: your phone, watch, glasses, camera roll, browser, command line, and task system. Without a common intake point, those captures become scattered one-off automations.
+OSINT operations are most effective when analysts can rapidly collect context from multiple sources: news feeds, social media, intercepted audio, field imagery, and research notes. Without a common intake point, these artifacts become scattered across disconnected tools.
 
-MacronX acts as the shared intake layer. It lets you capture raw input quickly, preserve structured context, attach files, and decide whether each item should be handled automatically or reviewed manually.
+MacronX acts as the shared intelligence intake layer. It lets you capture raw signals quickly, preserve structured context, attach media files, and decide whether each artifact should be analyzed automatically (e.g., generating an Executive Intelligence Brief) or reviewed manually.
 
-MacronX is designed to stay cheap to run. The Rails app, development database, and file storage run on your machine while you iterate locally. Workflows are intended to call local LLMs (Ollama, LM Studio, mlx, and similar) wherever possible, reserving paid cloud APIs for cases that truly need them.
+MacronX is designed to stay secure and cheap to run. The Rails app, development database, and file storage run locally on your machine, ensuring sensitive intelligence stays private. Workflows are intended to call local LLMs (Ollama, LM Studio, mlx, and similar) wherever possible, reserving paid cloud APIs for cases that truly need them.
 
 ## Example workflows
 
-### Meta glasses image capture
+### News Analysis
 
-Take a picture with Meta glasses and send it to a webhook adapter. The adapter can create a MacronX inbox item with the image attached, a source such as `meta-glasses`, and a tag or workflow for analyst-style threat assessment.
+Automatically process your daily intelligence feeds. Articles are gathered into an inbox item, and an LLM workflow synthesizes the raw data to produce an Executive Intelligence Brief (EIB) identifying macro-trends, geopolitical risks, and technological shifts.
+*See prompt: [news_analysis.md](prompts/news_analysis.md)*
 
-The current app stores and organizes the item, and the LLM threat-analysis step is a workflow you can assign to the tag.
+### Social Discourse & Trends
 
-### Research capture
+Monitor platforms like X (Twitter) or Reddit for emerging narratives. A scraper pushes a JSON payload of trending conversations via the API, and an LLM workflow identifies competing factions, escalation risks, and the strategic implications of the discourse.
+*See prompts: [x_trends.md](prompts/x_trends.md), [reddit_trends.md](prompts/reddit_trends.md)*
 
-An iOS Shortcut on Apple Watch or iPhone can collect a note, URL, voice transcript, or file and post it into MacronX. The item can then be tagged as research, assigned to a workflow, and reviewed or processed later.
+### Audio Intercepts & Transcription
 
-### Task capture
+Upload or pipe in raw audio files (e.g., from public speeches, intercepted comms, or analyst field notes). MacronX automatically transcribes the audio using local Whisper models, making the transcript available for subsequent LLM analysis, summarization, or translation.
+*See prompt: [audio_transcript.md](prompts/audio_transcript.md)*
 
-An iOS Shortcut or webhook can create an inbox item for a task, reminder, or follow-up. A workflow can later transform that item and send it to a task app through that app's API.
+### Image Intelligence (IMINT)
+
+Capture images from the field (e.g., via Meta glasses, drones, or web captures) and send them to a webhook adapter. The adapter creates an inbox item with the image attached, triggering an analyst-style threat assessment or geographical analysis workflow.
+*See prompt: [image_analysis.md](prompts/image_analysis.md)*
 
 ### Manual fallback
 
-When an item cannot be processed automatically, it remains unprocessed in the inbox. From there it can be searched, filtered by source or tag, edited, archived, bulk-tagged, or manually marked as processed through a workflow.
+When a raw signal cannot be analyzed automatically, it remains unprocessed in the inbox. From there it can be searched, filtered by source or tag, edited, archived, bulk-tagged, or manually marked as processed through an appropriate workflow.
+
+## OSINT Prompt Library
+
+MacronX includes a library of sample prompts tailored for OSINT analysts, located in the `prompts/` directory. These can be used directly as workflow templates:
+
+- [**News Analysis**](prompts/news_analysis.md): Synthesize daily feeds into an Executive Intelligence Brief (EIB).
+- [**X (Twitter) Trends**](prompts/x_trends.md): Analyze top discourse conversations for strategic narrative intelligence.
+- [**Reddit Trends**](prompts/reddit_trends.md): Identify sentiment and emerging narratives from subreddit data.
+- [**Image Analysis**](prompts/image_analysis.md): Conduct threat assessments and contextual analysis on imagery.
+- [**Audio Transcription**](prompts/audio_transcript.md): Process and summarize transcribed audio intercepts.
 
 ## Current capabilities
 
