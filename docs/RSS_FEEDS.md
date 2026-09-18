@@ -29,9 +29,9 @@ The resulting inbox item:
 
 ## Workflows
 
-The daily feed digest creates an inbox item with the `news` tag. In order for automated processing to occur, you must configure an LLM workflow associated with this `news` tag.
+The daily feed digest creates an inbox item with the `news` tag. The `news` tag and a default `news-workflow` are created automatically when running `db/seeds.rb` (part of `bin/setup` and `bin/rails db:prepare`), enabling automated processing out of the box.
 
-It is recommended to use the [News Analysis](../prompts/news_analysis.md) prompt when setting up this workflow. If the workflow and tag are properly configured, the digest will be automatically processed into an Executive Intelligence Brief.
+To produce an Executive Intelligence Brief, you can customize the workflow's prompt in the UI with the recommended [News Analysis](../prompts/news_analysis.md) prompt.
 
 ## Schedule
 

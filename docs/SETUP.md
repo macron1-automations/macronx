@@ -49,7 +49,9 @@ Prepare the local database:
 bin/rails db:prepare
 ```
  
-Seeds create `admin@example.com` with a randomly generated secure password (printed to the terminal on initial creation, development only).
+Seeds create:
+- `admin@example.com` with a randomly generated secure password (printed to the terminal on initial creation, development only).
+- The `news` tag and its auto-processing workflow (`news-workflow`) for automated daily RSS feed analysis.
  
 To specify a custom password when seeding:
  
