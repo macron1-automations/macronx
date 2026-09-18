@@ -144,6 +144,40 @@ RSpec.describe 'Api::V1::Inboxes', type: :request do
     end
   end
 
+  describe 'PATCH /api/v1/inboxes/:id/archive' do
+    let!(:inbox) { create(:inbox, user: user, source: 'api', archived: false) }
+
+    it 'archives the inbox entry' do
+      patch archive_api_v1_inbox_path(inbox), headers: auth_headers
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body['archived']).to be(true)
+      expect(inbox.reload.archived).to be(true)
+    end
+
+    it 'returns not found for another user inbox' do
+      other_inbox = create(:inbox, user: other_user, source: 'api')
+
+      patch archive_api_v1_inbox_path(other_inbox), headers: auth_headers
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe 'PATCH /api/v1/inboxes/:id/unarchive' do
+    let!(:inbox) { create(:inbox, user: user, source: 'api', archived: true) }
+
+    it 'unarchives the inbox entry' do
+      patch unarchive_api_v1_inbox_path(inbox), headers: auth_headers
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body['archived']).to be(false)
+      expect(inbox.reload.archived).to be(false)
+    end
+  end
+
   describe 'GET /api/v1/inboxes' do
     it 'includes body in list responses for the token owner only' do
       owned_inbox = create(:inbox, user: user, source: 'api', body: 'Listed body')

@@ -45,6 +45,8 @@ The API also supports:
 
 - `GET /api/v1/inboxes`
 - `GET /api/v1/inboxes/:id`
+- `PATCH /api/v1/inboxes/:id/archive`
+- `PATCH /api/v1/inboxes/:id/unarchive`
 - `GET /api/v1/tags`
 
 List and detail responses include `id`, `name`, `source`, `summary`, `body`, `tag` (tag name), `metadata`, `attachments`, `processed`, `archived`, `created_at`, and `updated_at`. They do not include `payload`.

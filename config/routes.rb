@@ -33,7 +33,12 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :inboxes, only: %i[index show create]
+      resources :inboxes, only: %i[index show create] do
+        member do
+          patch :archive
+          patch :unarchive
+        end
+      end
       resources :tags, only: %i[index]
     end
   end
