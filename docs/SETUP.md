@@ -42,14 +42,22 @@ MacronX is meant to run entirely on your laptop. The web app, database, backgrou
 Development uses the local `macron_x_development` database. The test suite uses a separate local `macron_x_test` database created automatically by Rails.
 
 ### Database setup
-
+ 
 Prepare the local database:
-
+ 
 ```sh
 bin/rails db:prepare
 ```
-
-Seeds create `admin@example.com` with password `password` (development only).
+ 
+Seeds create:
+- `admin@example.com` with a randomly generated secure password (printed to the terminal on initial creation, development only).
+- The `news` tag and its auto-processing workflow (`news-workflow`) for automated daily RSS feed analysis.
+ 
+To specify a custom password when seeding:
+ 
+```sh
+SEED_ADMIN_PASSWORD=your_password bin/rails db:seed
+```
 
 ### App setup
 
