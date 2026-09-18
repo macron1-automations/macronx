@@ -36,7 +36,7 @@ Automatically process your daily intelligence feeds. Articles are gathered into 
 ### Social Discourse & Trends
 
 Monitor platforms like X (Twitter), Meta (Facebook) or Reddit for emerging narratives. A scraper pushes a JSON payload of trending conversations via the API, and an LLM workflow identifies competing factions, escalation risks, and the strategic implications of the discourse.
-*See prompts: [x_trends.md](prompts/x_trends.md), [meta_trends](prompts/meta_trends.md), [reddit_trends.md](prompts/reddit_trends.md)*
+*See prompts: [x_trends.md](prompts/x_trends.md), [meta_trends.md](prompts/meta_trends.md), [reddit_trends.md](prompts/reddit_trends.md)*
 
 ### Audio Intercepts & Transcription
 
@@ -57,7 +57,8 @@ When a raw signal cannot be analyzed automatically, it remains unprocessed in th
 MacronX includes a library of sample prompts tailored for OSINT analysts, located in the `prompts/` directory. These can be used directly as workflow templates:
 
 - [**News Analysis**](prompts/news_analysis.md): Synthesize daily feeds into an Executive Intelligence Brief (EIB).
-- [**X (Twitter) Trends**](prompts/x_trends.md): Analyze top discourse conversations for strategic narrative intelligence.
+- [**X (Twitter) Trends**](prompts/x_trends.md): Analyze top discourse conversations for strategic narrative intelligence (can be used with [x-and-meta-reporting-skills](https://github.com/macron1-automations/x-and-meta-reporting-skills) to set up automatic reporting via grok.com).
+- [**Meta (Facebook) Trends**](prompts/meta_trends.md): Synthesize platform discourse into an Executive Social Discourse Brief (ESDB) (can be used with [x-and-meta-reporting-skills](https://github.com/macron1-automations/x-and-meta-reporting-skills) to set up automatic reporting via muse.ai).
 - [**Reddit Trends**](prompts/reddit_trends.md): Identify sentiment and emerging narratives from subreddit data.
 - [**Image Analysis**](prompts/image_analysis.md): Conduct threat assessments and contextual analysis on imagery.
 - [**Audio Transcription**](prompts/audio_transcript.md): Process and summarize transcribed audio intercepts.
