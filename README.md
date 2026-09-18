@@ -1,6 +1,6 @@
 # MacronX
 
-MacronX is EDC for your AI tools: a personal workflow inbox where signals from devices, shortcuts, webhooks, email adapters, and APIs can land in one place before being processed manually or routed into workflows.
+MacronX is EDC for your AI tools: a personal workflow inbox where signals from devices, shortcuts, webhooks, and APIs can land in one place before being processed manually or routed into workflows.
 
 The app is built around a simple idea: capture first, decide later. If an item can be processed automatically by source, tag, or workflow, it should move through the system. If it cannot, it stays in the inbox for human review.
 
@@ -11,10 +11,10 @@ MacronX is a Rails application for collecting and organizing AI workflow inputs.
 Use it as the integration point between capture tools and downstream AI or productivity systems:
 
 ```text
-Capture source -> API/email/webhook adapter -> inbox item -> tag/source routing -> workflow/manual review -> downstream system
+Capture source -> API/webhook adapter -> inbox item -> tag/source routing -> workflow/manual review -> downstream system
 ```
 
-Today, MacronX provides the inbox, workflow, tagging, attachment, filtering, and API ingestion primitives. Fully automated email ingestion, LLM analysis, external task-app export, and webhook-specific adapters are intended integration patterns built on top of those primitives.
+Today, MacronX provides the inbox, workflow, tagging, attachment, filtering, and API ingestion primitives. LLM-powered workflows are built on top of those primitives.
 
 ## Why it exists
 
@@ -28,9 +28,9 @@ MacronX is designed to stay cheap to run. The Rails app, development database, a
 
 ### Meta glasses image capture
 
-Take a picture with Meta glasses and send it to an email or webhook adapter, for example: "hey Meta, email this to threat analyst." The adapter can create a MacronX inbox item with the image attached, a source such as `meta-glasses`, and a tag or workflow for analyst-style threat assessment.
+Take a picture with Meta glasses and send it to a webhook adapter. The adapter can create a MacronX inbox item with the image attached, a source such as `meta-glasses`, and a tag or workflow for analyst-style threat assessment.
 
-The current app stores and organizes the item. The email adapter and LLM threat-analysis step are intended integrations that can be built around the API and workflow model.
+The current app stores and organizes the item, and the LLM threat-analysis step is a workflow you can assign to the tag.
 
 ### Research capture
 
@@ -59,6 +59,17 @@ When an item cannot be processed automatically, it remains unprocessed in the in
 - Active Storage attachments, including multipart API uploads.
 - Avo admin UI for admin users.
 - Daily RSS feed digest: each user's feeds are fetched once a day and summarized into a single inbox item, grouped by category.
+
+## Terminal UI
+
+A GPU-friendly Rust TUI is available for keyboard-driven work with MacronX. Built with ratatui, it features:
+
+- Inline image preview via terminal graphics protocols (Kitty, iTerm2, Sixel)
+- Inline audio playback with seek, volume controls, and waveform visualization
+- Markdown body rendering with word-wrapping
+- Keyboard-driven inbox listing, filtering by tag, and detail inspection
+
+Get it at [macron1-automations/macronx-tui](https://github.com/macron1-automations/macronx-tui). Requires `cargo run` with a running MacronX API and `MACRONX_API_TOKEN` set.
 
 ## Daily feed digest
 
@@ -123,7 +134,7 @@ bin/rails runner 'puts Inbox.where(source: "feed-digest").last&.payload'
 When an inbox item is created with an audio attachment (m4a, mp3, wav, etc.), the system automatically:
 
 1. **Converts** the audio to mp3 using ffmpeg (for m4a files).
-2. **Transcribes** the audio to text using OpenAI Whisper via `ruby_llm`.
+2. **Transcribes** the audio to text using self-hosted Whisper via `ruby_llm`.
 3. **Stores** the transcript in `metadata["audio_transcript"]`.
 
 The transcript is then available for workflows via the `{{audio_transcript}}` tag in the prompt template.
@@ -179,16 +190,15 @@ WHISPER_MODEL=whisper-1
 
 ## LLM & Transcription configuration
 
-The application uses **Ollama** for workflow execution and summary generation, and a **Whisper** (self-hosted or OpenAI) service for audio transcription:
+The application uses **Ollama** for workflow execution and summary generation, and **Whisper** for audio transcription:
 
 - **Workflows & Summaries**: Uses Ollama with `Qwen3.6-35B-A3B-FP8` by default.
   - `OLLAMA_API_BASE` (default: `http://localhost:1913/v1`, configure in `.env` for custom hosts, e.g. `http://100.95.26.48:1919/v1`)
   - `OLLAMA_MODEL` (default: `Qwen3.6-35B-A3B-FP8`)
-- **Audio Transcription**: Uses a Whisper speech-to-text service (defaults to self-hosted or OpenAI Whisper).
-  - `WHISPER_API_BASE`: Base URL for the Whisper service (e.g. `http://100.96.219.81:9000`). Falls back to `OPENAI_API_BASE` or `https://api.openai.com/v1`.
-  - `WHISPER_API_KEY`: API key / token for the Whisper endpoint. Falls back to `OPENAI_API_KEY`.
+- **Audio Transcription**: Uses a self-hosted Whisper speech-to-text service.
+  - `WHISPER_API_BASE`: Base URL for the Whisper service (e.g. `http://100.96.219.81:9000`).
+  - `WHISPER_API_KEY`: API key / token for the Whisper endpoint.
   - `WHISPER_MODEL`: Model identifier (default: `whisper-1`).
-  - `OPENAI_API_KEY`: Fallback API key if `WHISPER_API_KEY` is not set.
 - **Model Registry**: Model capabilities and providers are registered in `config/models.json`.
 - **Request Timeout**: Configured to 1800s (30 minutes) by default, overridable via `LLM_REQUEST_TIMEOUT`.
 
@@ -372,12 +382,3 @@ Do not commit:
 - real provider keys or passwords
 
 Keep `config/credentials.yml.enc` encrypted. If this repository was previously private and used for a real deployment, rotate the Rails credentials and any connected service tokens before publishing it publicly.
-
-## Roadmap / intended direction
-
-- Email ingestion adapters for tools such as Meta glasses capture workflows.
-- Webhook adapters for iOS Shortcuts, browser tools, command-line tools, and external automation systems.
-- Automatic routing based on source, tag, payload, metadata, or attachment type.
-- LLM-powered workflow execution via local models first (research, triage, analysis, transformation), with optional cloud fallbacks.
-- Downstream exports into task managers, notes apps, ticketing systems, or custom APIs.
-- Clear manual review queues for anything that cannot be processed confidently.
