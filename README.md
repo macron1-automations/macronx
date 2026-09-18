@@ -73,61 +73,7 @@ Get it at [macron1-automations/macronx-tui](https://github.com/macron1-automatio
 
 ## Daily feed digest
 
-Feeds are owned by the user who imported them. Once a day, a scheduled job fetches each user's feeds, collects articles published that day, and creates one inbox item per user whose payload is grouped by category.
-
-For every feed, the job keeps at most the 10 most recent articles published today. Feeds with no articles published today are skipped, and individual feed failures (timeouts, HTTP errors, invalid feeds) are recorded in the inbox item's metadata without aborting the run.
-
-The resulting inbox item:
-
-- `source`: `feed-digest`
-- `name`: `Daily Feed Digest`
-- `summary`: a short count such as `3 categories, 5 feeds, 23 articles`
-- `payload`: keyed by category name, e.g.
-
-```json
-{
-  "Technology": [
-    {
-      "feed": "Tech News",
-      "items": [
-        { "title": "Post A", "summary": "Short summary...", "link": "https://example.com/a", "published_at": "2026-08-08T12:00:00Z" }
-      ]
-    }
-  ]
-}
-```
-
-- `metadata`: run timestamp, feeds processed, items collected, and any per-feed errors.
-
-### Schedule
-
-The job runs once a day at 6am via Solid Queue, configured in `config/recurring.yml` (`daily_feed_digest`, every day at 6am). It fires automatically when the Solid Queue worker is running (e.g. via `bin/dev`).
-
-### Running manually
-
-Run it for all users with feeds:
-
-```sh
-bin/rails runner 'Feeds::DailyDigestJob.perform_now'
-```
-
-Enqueue it instead of running inline:
-
-```sh
-bin/rails runner 'Feeds::DailyDigestJob.perform_later'
-```
-
-Run it for a single user:
-
-```sh
-bin/rails runner 'user = User.find_by(email: "admin@example.com"); Feeds::DailyDigest.new(user: user).call'
-```
-
-Inspect the latest digest:
-
-```sh
-bin/rails runner 'puts Inbox.where(source: "feed-digest").last&.payload'
-```
+Please see [RSS_FEEDS.md](docs/RSS_FEEDS.md) for details on the daily feed digest, schedule, and how to run it manually.
 
 ## Audio transcription
 
@@ -176,7 +122,7 @@ The `Workflows::Runner` then:
 
 ## Setup & Configuration
 
-Please see [SETUP.md](SETUP.md) for detailed instructions on local development, LLM configuration, database setup, ngrok tunneling, and security notes.
+Please see [SETUP.md](docs/SETUP.md) for detailed instructions on local development, LLM configuration, database setup, ngrok tunneling, and security notes.
 
 ## Reprocessing workflow items
 
@@ -203,51 +149,4 @@ Behavior:
 
 ## API ingestion
 
-API requests authenticate with a bearer token:
-
-```http
-Authorization: Bearer <token>
-```
-
-Create or rotate your token from Settings after signing in.
-
-Create an inbox item:
-
-```http
-POST /api/v1/inboxes
-Content-Type: application/json
-Authorization: Bearer <token>
-```
-
-```json
-{
-  "inbox": {
-    "source": "ios-shortcut",
-    "summary": "Research note from phone",
-    "body": "Capture text, transcript, URL, or other context.",
-    "payload": {
-      "url": "https://example.com"
-    },
-    "metadata": {
-      "device": "iphone"
-    }
-  }
-}
-```
-
-Supported create fields:
-
-- `source`
-- `summary`
-- `body`
-- `payload`
-- `metadata`
-- `attachments` via multipart form data using `inbox[attachments][]`
-
-The API also supports:
-
-- `GET /api/v1/inboxes`
-- `GET /api/v1/inboxes/:id`
-- `GET /api/v1/tags`
-
-List and detail responses include `id`, `name`, `source`, `summary`, `body`, `tag` (tag name), `metadata`, `attachments`, `processed`, `archived`, `created_at`, and `updated_at`. They do not include `payload`.
+Please see [API.md](docs/API.md) for details on API ingestion, endpoints, and authentication.
