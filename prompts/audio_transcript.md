@@ -8,9 +8,11 @@
 
 ## Prompt
 
+```markdown
 Analyze the following audio transcription:
 
 {{audio_transcript}}
+```
 
 ## Summary Prompt
 
