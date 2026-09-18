@@ -25,6 +25,13 @@ The resulting inbox item:
 ```
 
 - `metadata`: run timestamp, feeds processed, items collected, and any per-feed errors.
+- `tags`: `["news"]`
+
+## Workflows
+
+The daily feed digest creates an inbox item with the `news` tag. In order for automated processing to occur, you must configure an LLM workflow associated with this `news` tag.
+
+It is recommended to use the [News Analysis](../prompts/news_analysis.md) prompt when setting up this workflow. If the workflow and tag are properly configured, the digest will be automatically processed into an Executive Intelligence Brief.
 
 ## Schedule
 
