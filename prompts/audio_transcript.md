@@ -1,8 +1,8 @@
 | Key | Value |
 | :--- | :--- |
-| `workflow name` | `audio-research` |
-| `tag` | `audio-research` |
-| `include_inbox_attachments_in_prompt` | [x] |
+| Workflow name | `audio-research` |
+| Tag | `audio-research` |
+| Include inbox attachments in prompt | [x] Checked |
 
 Analyze the following audio transcription:
 
