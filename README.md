@@ -35,8 +35,8 @@ Automatically process your daily intelligence feeds. Articles are gathered into 
 
 ### Social Discourse & Trends
 
-Monitor platforms like X (Twitter) or Reddit for emerging narratives. A scraper pushes a JSON payload of trending conversations via the API, and an LLM workflow identifies competing factions, escalation risks, and the strategic implications of the discourse.
-*See prompts: [x_trends.md](prompts/x_trends.md), [reddit_trends.md](prompts/reddit_trends.md)*
+Monitor platforms like X (Twitter), Meta (Facebook) or Reddit for emerging narratives. A scraper pushes a JSON payload of trending conversations via the API, and an LLM workflow identifies competing factions, escalation risks, and the strategic implications of the discourse.
+*See prompts: [x_trends.md](prompts/x_trends.md), [meta_trends](prompts/meta_trends.md), [reddit_trends.md](prompts/reddit_trends.md)*
 
 ### Audio Intercepts & Transcription
 
