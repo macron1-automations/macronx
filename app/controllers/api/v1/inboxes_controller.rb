@@ -24,6 +24,32 @@ module Api
         render json: { error: "Not found" }, status: :not_found
       end
 
+      api :PATCH, "/v1/inboxes/:id/archive", "Archive an inbox entry"
+      param :id, :number, required: true, desc: "Inbox ID"
+      def archive
+        inbox = @current_api_user.inboxes.find(params[:id])
+        if inbox.update(archived: true)
+          render json: serialize(inbox)
+        else
+          render json: { errors: inbox.errors.as_json }, status: :unprocessable_content
+        end
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Not found" }, status: :not_found
+      end
+
+      api :PATCH, "/v1/inboxes/:id/unarchive", "Unarchive an inbox entry"
+      param :id, :number, required: true, desc: "Inbox ID"
+      def unarchive
+        inbox = @current_api_user.inboxes.find(params[:id])
+        if inbox.update(archived: false)
+          render json: serialize(inbox)
+        else
+          render json: { errors: inbox.errors.as_json }, status: :unprocessable_content
+        end
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Not found" }, status: :not_found
+      end
+
       api :POST, "/v1/inboxes", "Create a new inbox entry"
       param :inbox, Hash, required: true do
         param :name,     String, desc: "Display name (auto-generated if omitted)"
