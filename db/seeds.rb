@@ -11,21 +11,30 @@
 # Create a default admin user for development. Change the email/password before running in production.
 if Rails.env.development?
   admin = User.find_or_initialize_by(email: "admin@example.com")
-  admin.password = "password"
-  admin.password_confirmation = "password"
   admin.admin = true
-  admin.save!
-  puts "Dev user ready: #{admin.email} (password: password)"
+
+  if admin.new_record? || ENV["SEED_ADMIN_PASSWORD"].present?
+    password = ENV["SEED_ADMIN_PASSWORD"].presence || SecureRandom.hex(16)
+    admin.password = password
+    admin.password_confirmation = password
+    admin.save!
+    puts "Dev user ready: #{admin.email} (password: #{password})"
+  else
+    admin.save!
+    puts "Dev user ready: #{admin.email} (password unchanged)"
+  end
 end
 
 # Seed the news tag and its auto-processing workflow.
 news_tag = Tag.find_or_create_by!(name: "news")
-Workflow.find_or_create_by!(name: "news-workflow") do |workflow|
+workflow = Workflow.find_by(tag: news_tag) || Workflow.find_or_initialize_by(name: "news-workflow")
+if workflow.new_record?
   workflow.tag = news_tag
   workflow.prompt = <<~PROMPT.strip
     You are a news analyst. Analyze the following payload and produce a well-structured daily digest:
 
     {{payload}}
   PROMPT
+  workflow.save!
 end
-puts "news-workflow ready (triggered by the 'news' tag)"
+puts "#{workflow.name} ready (triggered by the 'news' tag)"
