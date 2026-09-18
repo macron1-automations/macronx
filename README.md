@@ -77,47 +77,7 @@ Please see [RSS_FEEDS.md](docs/RSS_FEEDS.md) for details on the daily feed diges
 
 ## Audio transcription
 
-When an inbox item is created with an audio attachment (m4a, mp3, wav, etc.), the system automatically:
-
-1. **Converts** the audio to mp3 using ffmpeg (for m4a files).
-2. **Transcribes** the audio to text using self-hosted Whisper via `ruby_llm`.
-3. **Stores** the transcript in `metadata["audio_transcript"]`.
-
-The transcript is then available for workflows via the `{{audio_transcript}}` tag in the prompt template.
-
-### Workflow prompt example
-
-```text
-Analyze the following audio transcription:
-
-{{audio_transcript}}
-```
-
-When the workflow runs, `{{audio_transcript}}` is replaced with the transcribed text. Audio attachments are automatically excluded from the LLM request to avoid errors with models that don't support audio input.
-
-### How it works
-
-The `Inboxes::ProcessJob` coordinates attachment preprocessing before running workflows:
-
-- Runs after an inbox item is created with a matching workflow tag.
-- Preprocesses audio via `Audio::ConvertM4aToMp3Job`:
-  - Converts m4a to mp3 (ffmpeg).
-  - Transcribes the audio to text (`RubyLLM.transcribe` using `whisper-1` by default).
-  - Stores the transcript in `metadata["audio_transcript"]`.
-- Preprocesses images via `Image::ConvertHeicToJpegJob` (converts HEIC/HEIF to JPEG).
-- Enqueues `Workflows::RunJob` once all preprocessing completes.
-
-The `Workflows::Runner` then:
-
-- Builds the prompt using the workflow template, replacing `{{audio_transcript}}` with the stored transcript.
-- Excludes audio attachments from the LLM request when a transcript exists.
-- Sends only the text prompt to the LLM.
-
-### Supported audio formats
-
-- m4a (audio/mp4, audio/x-m4a, audio/m4a)
-- mp3 (audio/mpeg)
-- wav, webm, ogg (any audio format supported by Whisper)
+Please see [AUDIO_TRANSCRIPTS.md](docs/AUDIO_TRANSCRIPTS.md) for details on supported audio formats, automatic transcription workflows, and prompt examples.
 
 
 ## Setup & Configuration
@@ -126,26 +86,7 @@ Please see [SETUP.md](docs/SETUP.md) for detailed instructions on local developm
 
 ## Reprocessing workflow items
 
-If you change a workflow's prompt (or your LLM setup) and want to re-run it on items that were already processed, you can re-process the most recent ones. This re-runs each item's tag workflow with the item's `payload` and overwrites the item's `body` and workflow metadata.
-
-Re-process the 10 most recent processed items tagged `news`:
-
-```sh
-bin/rails workflows:reprocess COUNT=10
-```
-
-Point it at a different tag with `TAG`:
-
-```sh
-bin/rails workflows:reprocess COUNT=5 TAG=research
-```
-
-Behavior:
-
-- Items are picked newest first, limited to `COUNT`.
-- Only processed, non-archived items are included.
-- Items whose tag has no workflow are skipped.
-- A failed item does not abort the run; the error is recorded in the item's `metadata` and reported at the end.
+Please see [MAINTENANCE.md](docs/MAINTENANCE.md) for details on reprocessing existing items through updated workflows.
 
 ## API ingestion
 
