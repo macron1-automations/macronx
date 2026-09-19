@@ -59,7 +59,7 @@ MacronX includes a library of sample prompts tailored for OSINT analysts, locate
 - [**News Analysis**](prompts/news_analysis.md): Synthesize daily feeds into an Executive Intelligence Brief (EIB).
 - [**X (Twitter) Trends**](prompts/x_trends.md): Analyze top discourse conversations for strategic narrative intelligence (can be used with [x-and-meta-reporting-skills](https://github.com/macron1-automations/x-and-meta-reporting-skills) to set up automatic reporting via grok.com).
 - [**Meta (Facebook) Trends**](prompts/meta_trends.md): Synthesize platform discourse into an Executive Social Discourse Brief (ESDB) (can be used with [x-and-meta-reporting-skills](https://github.com/macron1-automations/x-and-meta-reporting-skills) to set up automatic reporting via muse.ai).
-- [**Reddit Trends**](prompts/reddit_trends.md): Identify sentiment and emerging narratives from subreddit data.
+- [**Reddit Trends**](prompts/reddit_trends.md): Identify sentiment and emerging narratives from subreddit data (can be used with [hermes-reddit-osint-pipeline](https://github.com/macron1-automations/hermes-reddit-osint-pipeline) to set up automated Reddit scraping and ingestion).
 - [**Image Analysis**](prompts/image_analysis.md): Conduct threat assessments and contextual analysis on imagery.
 - [**Audio Transcription**](prompts/audio_transcript.md): Process and summarize transcribed audio intercepts.
 
