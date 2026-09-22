@@ -4,7 +4,7 @@ RubyLLM.configure do |config|
   ollama_base = ENV.fetch("OLLAMA_API_BASE", "http://localhost:1913/v1")
   ollama_base = "#{ollama_base.chomp('/')}/v1" unless ollama_base.end_with?("/v1")
   config.ollama_api_base = ollama_base
-  config.default_model = ENV.fetch("OLLAMA_MODEL", "Qwen3.6-35B-A3B-FP8")
+  config.default_model = ENV.fetch("OLLAMA_MODEL", "Qwen3.6-35B-A3B-NVFP4")
   config.ollama_api_key = ENV["OLLAMA_API_KEY"] if ENV["OLLAMA_API_KEY"].present?
 
   # Transcription configuration (self-hosted Whisper or OpenAI)

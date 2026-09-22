@@ -60537,8 +60537,8 @@
     }
   },
   {
-    "id": "Qwen3.6-35B-A3B-FP8",
-    "name": "Qwen3.6-35B-A3B-FP8",
+    "id": "Qwen3.6-35B-A3B-NVFP4",
+    "name": "Qwen3.6-35B-A3B-NVFP4",
     "provider": "ollama",
     "family": "qwen",
     "context_window": 262144,
