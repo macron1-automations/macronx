@@ -4,9 +4,9 @@
 
 The application uses **Ollama** for workflow execution and summary generation, and **Whisper** for audio transcription:
 
-- **Workflows & Summaries**: Uses Ollama with `Qwen3.6-35B-A3B-FP8` by default.
+- **Workflows & Summaries**: Uses Ollama with `Qwen3.6-35B-A3B-NVFP4` by default.
   - `OLLAMA_API_BASE` (default: `http://localhost:1913/v1`, configure in `.env` for custom hosts, e.g. `http://100.95.26.48:1919/v1`)
-  - `OLLAMA_MODEL` (default: `Qwen3.6-35B-A3B-FP8`)
+  - `OLLAMA_MODEL` (default: `Qwen3.6-35B-A3B-NVFP4`)
 - **Audio Transcription**: Uses a self-hosted Whisper speech-to-text service.
   - `WHISPER_API_BASE`: Base URL for the Whisper service (e.g. `http://100.96.219.81:9000`).
   - `WHISPER_API_KEY`: API key / token for the Whisper endpoint.
