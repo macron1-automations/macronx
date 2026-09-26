@@ -33,6 +33,8 @@ WHISPER_MODEL=whisper-1
 
 MacronX is meant to run entirely on your laptop. The web app, database, background jobs, and development file storage all use local services by default.
 
+To run the same stack in containers instead, see [Docker](DOCKER.md).
+
 ### Requirements
 
 - Ruby 3.4.4
@@ -50,14 +52,16 @@ bin/rails db:prepare
 ```
  
 Seeds create:
-- `admin@example.com` with a randomly generated secure password (printed to the terminal on initial creation, development only).
+- An admin user, `admin@example.com` by default, with a randomly generated secure password (printed to the terminal on initial creation).
 - The `news` tag and its auto-processing workflow (`news-workflow`) for automated daily RSS feed analysis.
  
-To specify a custom password when seeding:
+To specify a custom login when seeding:
  
 ```sh
-SEED_ADMIN_PASSWORD=your_password bin/rails db:seed
+SEED_ADMIN_EMAIL=you@example.com SEED_ADMIN_PASSWORD=your_password bin/rails db:seed
 ```
+
+Re-running only changes the password when `SEED_ADMIN_PASSWORD` is present, so the rest of the seed is safe to repeat.
 
 ### App setup
 
