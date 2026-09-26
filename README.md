@@ -77,6 +77,7 @@ Get it at [macron1-automations/macronx-tui](https://github.com/macron1-automatio
 ## Documentation
 
 - **[Setup & Configuration](docs/SETUP.md)**: Detailed instructions on local development, LLM configuration, database setup, ngrok tunneling, and security notes.
+- **[Docker](docs/DOCKER.md)**: Run the app, background jobs, and a persistent PostgreSQL database with Docker Compose.
 - **[Daily RSS Feed digest](docs/RSS_FEEDS.md)**: Details on the daily feed digest, schedule, and how to run it manually. This digest automatically feeds into the [News Analysis](#news-analysis) workflow.
 - **[Audio transcription](docs/AUDIO_TRANSCRIPTS.md)**: Details on supported audio formats, automatic transcription workflows, and prompt examples.
 - **[Maintenance](docs/MAINTENANCE.md)**: Details on routine maintenance tasks, including reprocessing existing items through updated workflows.

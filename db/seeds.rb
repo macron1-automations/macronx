@@ -8,21 +8,21 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-# Create a default admin user for development. Change the email/password before running in production.
-if Rails.env.development?
-  admin = User.find_or_initialize_by(email: "admin@example.com")
-  admin.admin = true
+# Create the admin user used to sign in. Set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD
+# for a known login, otherwise a random password is generated and printed below.
+# Re-running only changes the password when SEED_ADMIN_PASSWORD is present.
+admin = User.find_or_initialize_by(email: ENV.fetch("SEED_ADMIN_EMAIL", "admin@example.com"))
+admin.admin = true
 
-  if admin.new_record? || ENV["SEED_ADMIN_PASSWORD"].present?
-    password = ENV["SEED_ADMIN_PASSWORD"].presence || SecureRandom.hex(16)
-    admin.password = password
-    admin.password_confirmation = password
-    admin.save!
-    puts "Dev user ready: #{admin.email} (password: #{password})"
-  else
-    admin.save!
-    puts "Dev user ready: #{admin.email} (password unchanged)"
-  end
+if admin.new_record? || ENV["SEED_ADMIN_PASSWORD"].present?
+  password = ENV["SEED_ADMIN_PASSWORD"].presence || SecureRandom.hex(16)
+  admin.password = password
+  admin.password_confirmation = password
+  admin.save!
+  puts "Admin user ready: #{admin.email} (password: #{password})"
+else
+  admin.save!
+  puts "Admin user ready: #{admin.email} (password unchanged)"
 end
 
 # Seed the news tag and its auto-processing workflow.
