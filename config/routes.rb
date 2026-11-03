@@ -23,7 +23,11 @@ Rails.application.routes.draw do
 
   resources :workflows
   resources :tags
-  resources :feeds
+  resources :feeds do
+    collection do
+      post :fetch
+    end
+  end
   resources :feed_categories
   resources :feed_imports, only: %i[new create show]
 

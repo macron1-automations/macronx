@@ -2,6 +2,7 @@
 <%= render 'shared/keyboard_shortcut_help',
       title: 'Feed list',
       shortcuts: [
+        { label: 'Fetch Feeds', key: 'f' },
         { label: 'Manage Categories', key: 'c' },
         { label: 'Import CSV', key: 'i' },
         { label: 'New Feed', key: 'n' }
@@ -13,6 +14,18 @@
     <p class="mt-1 text-sm text-gray-500">Manage RSS feeds to process</p>
   </div>
   <div class="flex items-center gap-x-2">
+    <%= button_to fetch_feeds_path,
+          method: :post,
+          title: "Fetch Feeds (f)",
+          data: {
+            turbo_confirm: "Fetch articles from all feeds now?",
+            keyboard_shortcuts_target: "trigger",
+            keyboard_shortcuts_key: "f"
+          },
+          class: "inline-flex items-center gap-x-1.5 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-150 cursor-pointer" do %>
+      Fetch Feeds
+      <kbd class="rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500">f</kbd>
+    <% end %>
     <%= link_to feed_categories_path,
           title: "Manage Categories (c)",
           data: { keyboard_shortcuts_target: "trigger", keyboard_shortcuts_key: "c" },

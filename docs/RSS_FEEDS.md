@@ -39,6 +39,12 @@ The job runs once a day at 6am via Solid Queue, configured in `config/recurring.
 
 ## Running manually
 
+### From the UI
+
+On the **Feeds** page (`/feeds`), click the **Fetch Feeds** button (or press `f`) and confirm the prompt to trigger the digest workflow for your feeds in the background.
+
+### From the CLI
+
 Run it for all users with feeds:
 
 ```sh
@@ -51,10 +57,10 @@ Enqueue it instead of running inline:
 bin/rails runner 'Feeds::DailyDigestJob.perform_later'
 ```
 
-Run it for a single user:
+Run or enqueue it for a single user:
 
 ```sh
-bin/rails runner 'user = User.find_by(email: "admin@example.com"); Feeds::DailyDigest.new(user: user).call'
+bin/rails runner 'user = User.find_by(email: "admin@example.com"); Feeds::DailyDigestJob.perform_later(user)'
 ```
 
 Inspect the latest digest:

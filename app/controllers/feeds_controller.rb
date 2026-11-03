@@ -39,6 +39,15 @@ class FeedsController < ApplicationController
     redirect_to feeds_path, notice: "Feed was successfully deleted."
   end
 
+  def fetch
+    if current_user.feeds.none?
+      redirect_to feeds_path, alert: "No feeds found to fetch. Please add feeds first."
+    else
+      Feeds::DailyDigestJob.perform_later(current_user)
+      redirect_to feeds_path, notice: "Feed download queued. New articles will appear in your Inbox shortly."
+    end
+  end
+
   private
 
   def set_feed

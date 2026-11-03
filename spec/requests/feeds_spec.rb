@@ -17,6 +17,12 @@ RSpec.describe 'Feeds', type: :request do
 
       expect(response).to redirect_to(new_user_session_path)
     end
+
+    it 'redirects unauthenticated users away from fetch' do
+      post fetch_feeds_path
+
+      expect(response).to redirect_to(new_user_session_path)
+    end
   end
 
   context 'when authenticated' do
@@ -33,13 +39,16 @@ RSpec.describe 'Feeds', type: :request do
         expect(response.body).to include('Manage Categories', 'href="/feed_categories"')
         expect(response.body).to include('Import CSV', 'href="/feed_imports/new"')
         expect(response.body).to include(
+          'Fetch Feeds (f)',
           'Manage Categories (c)',
           'Import CSV (i)',
           'New Feed (n)',
+          'data-keyboard-shortcuts-key="f"',
           'data-keyboard-shortcuts-key="c"',
           'data-keyboard-shortcuts-key="i"',
           'data-keyboard-shortcuts-key="n"'
         )
+        expect(response.body).to include('Fetch articles from all feeds now?')
         expect(response.body).to include('Keyboard Shortcuts', 'Feed list')
 
         sidebar = Nokogiri::HTML(response.body).at_css('nav')
@@ -172,6 +181,30 @@ RSpec.describe 'Feeds', type: :request do
         expect(response).to redirect_to(feeds_path)
         follow_redirect!
         expect(response.body).to include('successfully deleted')
+      end
+    end
+
+    describe 'POST /feeds/fetch' do
+      it 'enqueues the daily digest job for the current user and redirects to index' do
+        expect {
+          post fetch_feeds_path
+        }.to have_enqueued_job(Feeds::DailyDigestJob).with(user)
+
+        expect(response).to redirect_to(feeds_path)
+        follow_redirect!
+        expect(response.body).to include('Feed download queued. New articles will appear in your Inbox shortly.')
+      end
+
+      it 'does not enqueue a job and shows an alert when user has no feeds' do
+        user.feeds.destroy_all
+
+        expect {
+          post fetch_feeds_path
+        }.not_to have_enqueued_job(Feeds::DailyDigestJob)
+
+        expect(response).to redirect_to(feeds_path)
+        follow_redirect!
+        expect(response.body).to include('No feeds found to fetch. Please add feeds first.')
       end
     end
   end
