@@ -17,11 +17,20 @@ class Inbox < ApplicationRecord
   scope :processed_items, -> { where(processed: true, archived: false) }
   scope :archived, -> { where(archived: true) }
 
+  def actionable_workflow
+    return nil if tag_id.blank?
+
+    Workflow.find_by(tag_id: tag_id)
+  end
+
+  def can_process?
+    actionable_workflow.present?
+  end
+
   private
 
   def enqueue_processing
-    return if tag.blank?
-    return unless Workflow.exists?(tag_id: tag_id)
+    return unless can_process?
 
     Inboxes::ProcessJob.perform_later(id)
   end

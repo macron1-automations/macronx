@@ -173,4 +173,27 @@ RSpec.describe Inbox, type: :model do
       expect { create(:inbox, tag: nil) }.not_to have_enqueued_job(Inboxes::ProcessJob)
     end
   end
+
+  describe '#actionable_workflow and #can_process?' do
+    let(:tag) { create(:tag) }
+
+    it 'returns nil and false when tag is absent' do
+      inbox = build(:inbox, tag: nil)
+      expect(inbox.actionable_workflow).to be_nil
+      expect(inbox.can_process?).to be(false)
+    end
+
+    it 'returns nil and false when tag has no workflow' do
+      inbox = build(:inbox, tag: tag)
+      expect(inbox.actionable_workflow).to be_nil
+      expect(inbox.can_process?).to be(false)
+    end
+
+    it 'returns the workflow and true when tag has an associated workflow' do
+      workflow = create(:workflow, tag: tag)
+      inbox = build(:inbox, tag: tag)
+      expect(inbox.actionable_workflow).to eq(workflow)
+      expect(inbox.can_process?).to be(true)
+    end
+  end
 end

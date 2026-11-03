@@ -28,6 +28,16 @@ RSpec.describe 'Inboxes', type: :request do
         expect(response.body).to include(inbox.name)
       end
 
+      it 'renders a Process button when an inbox item has an associated workflow' do
+        tag = create(:tag)
+        create(:workflow, tag: tag)
+        item = create(:inbox, user: user, tag: tag, processed: false)
+
+        get inboxes_path
+        expect(response.body).to include(process_item_inbox_path(item))
+        expect(response.body).to include('Process')
+      end
+
       it 'shows an attachment indicator when files are attached' do
         inbox.attachments.attach(
           io: File.open(Rails.root.join('spec/fixtures/files/sample.txt')),
@@ -91,6 +101,16 @@ RSpec.describe 'Inboxes', type: :request do
         get inbox_path(inbox)
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(inbox.name)
+      end
+
+      it 'renders a Process button with shortcut p when item has an associated workflow' do
+        tag = create(:tag)
+        create(:workflow, tag: tag)
+        item = create(:inbox, user: user, tag: tag, processed: false)
+
+        get inbox_path(item)
+        expect(response.body).to include(process_item_inbox_path(item))
+        expect(response.body).to include('data-keyboard-shortcuts-key="p"')
       end
 
       it 'lists attached files' do
@@ -413,6 +433,23 @@ RSpec.describe 'Inboxes', type: :request do
         expect(Inbox.exists?(owned_inbox.id)).to be(false)
         expect(Inbox.exists?(other_inbox.id)).to be(true)
       end
+
+      it 'enqueues processing only for processable inboxes owned by the signed-in user' do
+        tag = create(:tag)
+        create(:workflow, tag: tag)
+        processable_inbox = create(:inbox, user: user, tag: tag)
+        unactionable_inbox = create(:inbox, user: user, tag: nil)
+        other_inbox = create(:inbox, tag: tag)
+
+        expect {
+          patch bulk_process_inboxes_path, params: { inbox_ids: [ processable_inbox.id, unactionable_inbox.id, other_inbox.id ] }
+        }.to have_enqueued_job(Inboxes::ProcessJob).with(processable_inbox.id).once
+
+        expect(response).to redirect_to(inboxes_path)
+        follow_redirect!
+        expect(response.body).to include('1 item(s) queued for processing')
+        expect(response.body).to include('1 item(s) skipped')
+      end
     end
 
     describe 'DELETE /inboxes/:id' do
@@ -427,6 +464,57 @@ RSpec.describe 'Inboxes', type: :request do
         other_inbox = create(:inbox)
 
         expect { delete inbox_path(other_inbox) }.not_to change(Inbox, :count)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    describe 'PATCH /inboxes/:id/process' do
+      let(:tag) { create(:tag) }
+      let!(:workflow) { create(:workflow, tag: tag) }
+
+      it 'enqueues Inboxes::ProcessJob and redirects with notice when item has a workflow' do
+        target_inbox = create(:inbox, user: user, tag: tag, processed: false)
+
+        expect {
+          patch process_item_inbox_path(target_inbox)
+        }.to have_enqueued_job(Inboxes::ProcessJob).with(target_inbox.id)
+
+        expect(response).to redirect_to(inboxes_path)
+        follow_redirect!
+        expect(response.body).to include("Processing queued for &quot;#{target_inbox.name}&quot;.")
+      end
+
+      it 'shows Reprocessing notice when item was already processed' do
+        target_inbox = create(:inbox, user: user, tag: tag, processed: true, workflow: workflow)
+
+        expect {
+          patch process_item_inbox_path(target_inbox)
+        }.to have_enqueued_job(Inboxes::ProcessJob).with(target_inbox.id)
+
+        expect(response).to redirect_to(inboxes_path)
+        follow_redirect!
+        expect(response.body).to include("Reprocessing queued for &quot;#{target_inbox.name}&quot;.")
+      end
+
+      it 'does not enqueue job and redirects with alert if no workflow exists' do
+        untagged_inbox = create(:inbox, user: user, tag: nil)
+
+        expect {
+          patch process_item_inbox_path(untagged_inbox)
+        }.not_to have_enqueued_job(Inboxes::ProcessJob)
+
+        expect(response).to redirect_to(inboxes_path)
+        follow_redirect!
+        expect(response.body).to include("Cannot process &quot;#{untagged_inbox.name}&quot; because no workflow is associated with its tag.")
+      end
+
+      it 'returns 404 for another user inbox' do
+        other_inbox = create(:inbox, tag: tag)
+
+        expect {
+          patch process_item_inbox_path(other_inbox)
+        }.not_to have_enqueued_job(Inboxes::ProcessJob)
+
         expect(response).to have_http_status(:not_found)
       end
     end

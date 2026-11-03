@@ -23,6 +23,10 @@
         <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">n</kbd>
       </li>
       <li class="flex items-center justify-between py-2.5">
+        <span class="text-sm text-gray-700">Process / Reprocess selected</span>
+        <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">p</kbd>
+      </li>
+      <li class="flex items-center justify-between py-2.5">
         <span class="text-sm text-gray-700">Archive selected</span>
         <kbd class="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">a</kbd>
       </li>
@@ -95,6 +99,7 @@
 <div data-controller="bulk-actions list-navigation"
      data-bulk-actions-archive-url-value="<%= bulk_archive_inboxes_path %>"
      data-bulk-actions-unarchive-url-value="<%= bulk_unarchive_inboxes_path %>"
+     data-bulk-actions-process-url-value="<%= bulk_process_inboxes_path %>"
      data-bulk-actions-destroy-url-value="<%= bulk_destroy_inboxes_path %>">
   <%= render 'bulk_actions', count: @inboxes.size, filter: params[:filter] %>
 
@@ -138,6 +143,10 @@
               <div class="flex items-center justify-between">
                 <span class="text-xs text-gray-400"><%= inbox.created_at.strftime('%b %d, %Y') %></span>
                 <div class="flex items-center gap-x-2 text-xs font-medium">
+                  <% if inbox.can_process? %>
+                    <%= button_to inbox.processed? ? 'Reprocess' : 'Process', process_item_inbox_path(inbox), method: :patch,
+                          class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                  <% end %>
                   <%= link_to 'View', inbox, class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150", data: { list_navigation_view: true } %>
                   <%= link_to 'Edit', edit_inbox_path(inbox), class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" %>
                   <%= button_to 'Delete', inbox, method: :delete,
@@ -218,6 +227,10 @@
                 <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap"><%= inbox.created_at.strftime('%b %d, %Y') %></td>
                 <td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                   <div class="flex items-center justify-end gap-x-3">
+                    <% if inbox.can_process? %>
+                      <%= button_to inbox.processed? ? 'Reprocess' : 'Process', process_item_inbox_path(inbox), method: :patch,
+                            class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150 bg-transparent border-0 p-0 cursor-pointer font-medium" %>
+                    <% end %>
                     <%= link_to 'View', inbox, class: "text-indigo-600 hover:text-indigo-900 transition-colors duration-150", data: { list_navigation_view: true } %>
                     <%= link_to 'Edit', edit_inbox_path(inbox), class: "text-gray-600 hover:text-gray-900 transition-colors duration-150" %>
                     <%= button_to 'Delete', inbox, method: :delete,

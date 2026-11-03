@@ -10,6 +10,20 @@
   </div>
 
   <div class="flex items-center gap-x-2">
+    <button type="button"
+            title="<%= filter == 'processed' ? 'Reprocess selected (p)' : 'Process selected (p)' %>"
+            class="inline-flex items-center gap-x-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
+            disabled
+            data-bulk-actions-target="actionButton"
+            data-keyboard-shortcuts-target="trigger"
+            data-keyboard-shortcuts-key="p"
+            data-action="click->bulk-actions#bulkProcess">
+      <svg class="-ml-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.75a.75.75 0 0 0-.75.75v4.482a.75.75 0 0 0 1.5 0v-2.22l.334.333a7 7 0 0 0 11.96-3.23.75.75 0 1 0-1.482-.27Zm-10.624-2.85a5.5 5.5 0 0 1 9.2-2.465l.313.31h-2.433a.75.75 0 0 0 0 1.5h4.482a.75.75 0 0 0 .75-.75V2.688a.75.75 0 0 0-1.5 0v2.22l-.334-.333a7 7 0 0 0-11.96 3.23.75.75 0 0 0 1.482.27Z" clip-rule="evenodd" />
+      </svg>
+      <%= filter == 'processed' ? 'Reprocess' : 'Process' %>
+      <kbd class="ml-1 hidden rounded border border-gray-200 bg-gray-100 px-1 py-0.5 font-mono text-xs font-normal text-gray-500 sm:inline">p</kbd>
+    </button>
     <% if filter == 'archived' %>
     <button type="button"
             title="Unarchive selected (a)"
