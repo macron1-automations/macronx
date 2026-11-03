@@ -13,11 +13,13 @@ Rails.application.routes.draw do
     collection do
       patch :bulk_archive
       patch :bulk_unarchive
+      patch :bulk_process
       delete :bulk_destroy
     end
     member do
       patch :archive
       patch :unarchive
+      patch :process_item, path: "process"
     end
   end
 

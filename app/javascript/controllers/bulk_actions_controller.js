@@ -5,7 +5,8 @@ export default class extends Controller {
   static values = {
     archiveUrl: String,
     unarchiveUrl: String,
-    destroyUrl: String
+    destroyUrl: String,
+    processUrl: String
   }
 
   connect() {
@@ -60,6 +61,17 @@ export default class extends Controller {
     if (!confirm(message)) return
 
     this.submitBulkForm(this.archiveUrlValue, "patch", ids)
+  }
+
+  bulkProcess() {
+    const ids = this.selectedIds
+    if (ids.length === 0) return
+
+    const count = ids.length
+    const message = `Process ${count} item${count === 1 ? "" : "s"}?`
+    if (!confirm(message)) return
+
+    this.submitBulkForm(this.processUrlValue, "patch", ids)
   }
 
   bulkDelete() {

@@ -1,5 +1,5 @@
 class InboxesController < ApplicationController
-  before_action :set_inbox, only: %i[show edit update destroy archive unarchive]
+  before_action :set_inbox, only: %i[show edit update destroy archive unarchive process_item]
 
   def index
     inboxes = current_user.inboxes
@@ -42,6 +42,21 @@ class InboxesController < ApplicationController
   def bulk_destroy
     selected_inboxes.destroy_all
     redirect_to inboxes_path, notice: "Items deleted."
+  end
+
+  def bulk_process
+    items = selected_inboxes.to_a
+    processable_items = items.select(&:can_process?)
+
+    processable_items.each do |inbox|
+      Inboxes::ProcessJob.perform_later(inbox.id)
+    end
+
+    skipped_count = items.size - processable_items.size
+    message = "#{processable_items.size} item(s) queued for processing."
+    message += " #{skipped_count} item(s) skipped (no workflow associated with tag)." if skipped_count > 0
+
+    redirect_back fallback_location: inboxes_path, notice: message
   end
 
   def show
@@ -91,6 +106,16 @@ class InboxesController < ApplicationController
   def unarchive
     @inbox.update(archived: false)
     redirect_to inboxes_path(filter: "archived"), notice: "\"#{@inbox.name}\" restored to inbox."
+  end
+
+  def process_item
+    if @inbox.can_process?
+      Inboxes::ProcessJob.perform_later(@inbox.id)
+      action_label = @inbox.processed? ? "Reprocessing" : "Processing"
+      redirect_back fallback_location: inboxes_path, notice: "#{action_label} queued for \"#{@inbox.name}\"."
+    else
+      redirect_back fallback_location: inboxes_path, alert: "Cannot process \"#{@inbox.name}\" because no workflow is associated with its tag."
+    end
   end
 
   private
