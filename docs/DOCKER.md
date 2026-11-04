@@ -189,6 +189,14 @@ in the container.
   working tree cannot break the bundle. Do not add a volume mount over that path.
 - **`tmp/cache`** is shared with the host. If the host has a bootsnap cache from
   a different gem path, delete `tmp/cache` to force a rebuild.
+- **Stale Puma PID file.** `tmp/` is in the bind mount, so `tmp/pids/server.pid`
+  survives container recreation. Puma runs as PID 1 in the container, so if a
+  container is killed instead of stopped gracefully, that pidfile names a PID
+  that exists again on the next boot, and Rails exits with `A server is already
+  running (pid: 1, file: /rails/tmp/pids/server.pid)`, putting `web` in a restart
+  loop. `bin/docker-entrypoint` clears the pidfile before starting the server, so
+  this heals itself; if you hit it with an older image, run
+  `rm -f tmp/pids/server.pid && docker compose up -d`.
 
 ## Production
 
