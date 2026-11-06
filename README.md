@@ -74,6 +74,18 @@ A GPU-friendly Rust TUI is available for keyboard-driven work with MacronX. Buil
 
 Get it at [macron1-automations/macronx-tui](https://github.com/macron1-automations/macronx-tui).
 
+## Model Context Protocol (MCP) Server
+
+A Model Context Protocol (MCP) server is available for connecting AI assistants and agentic workflows (such as Claude Desktop, Cursor, or Antigravity) directly to MacronX. It features:
+
+- Inbox inspection and filtering by source, tag, and processing status
+- Direct creation of inbox items with payloads, tags, and workflow assignments
+- Archival management (archive and unarchive items)
+- Attachment access and download for intelligence artifacts
+- Tag discovery across the intelligence corpus
+
+Get it at [macron1-automations/macronx-mcp](https://github.com/macron1-automations/macronx-mcp).
+
 ## Documentation
 
 - **[Setup & Configuration](docs/SETUP.md)**: Detailed instructions on local development, LLM configuration, database setup, ngrok tunneling, and security notes.
